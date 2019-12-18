@@ -6,13 +6,14 @@
 {% include navbar.html %}
 {% include sidebar.html %}
 <div class="posts">
-{% for post in site.posts %}
-    {% unless post.draft == true %}
+    {% for category in site.categories %} 
+    {% if category[0] == "machinelearning" %}
+    {% for post in category[1] %}
     <a class="post" href="{{ post.url | remove:'.html' | escape }}">
     <article>
 
         <h2>
-            {{post.category | escape }}
+            {{ post.category | escape }}
             {{ post.title | escape }}
 
             <time pubdate datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%B %d, %Y" }}</time>
@@ -33,8 +34,9 @@
 
     </article>
     </a>
-    {% endunless %}
     {% endfor %}
+  {% endif %}
+{% endfor %}
 </div>
     <!-- TEMP HACK this whole thing feels quite hacky. wish there were easier ways. -->
     <script>
