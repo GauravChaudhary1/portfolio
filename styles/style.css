@@ -362,7 +362,7 @@
           width: 160px;
           position: fixed;
           z-index: 1;
-          top: 0;
+          top: 66px;
           left: 0;
           background-color: #111;
           overflow-x: hidden;
