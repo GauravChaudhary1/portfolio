@@ -12,6 +12,7 @@
     <article>
 
         <h2>
+            {{post.category | escape }}
             {{ post.title | escape }}
 
             <time pubdate datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%B %d, %Y" }}</time>
