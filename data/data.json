@@ -1,0 +1,46 @@
+{ "data":
+[
+{
+  "name": "Building a Custom Control",
+  "descr": "Sometimes standard controls cannot fulfil the requirement of the client. Or you may want to give a heavy look to the design and feel for which you might need to create a new control from scratch. I encountered the same request while working a with a client where he didn't want the standard tile but a rounded tile. Later, added he need more action on the tile itself. Follow the link to have a peak in project.",
+  "link": "http://www.google.com",
+  "imageurl": "images/20191213-Custom Control/1.png",
+  "color":"black"
+},
+{
+  "name": "Building a Chat Bot using SAP Conversational AI",
+  "descr": "Building a custom control",
+  "link": "http://www.google.com",
+  "imageurl": "images/1.jpg",
+  "color":""
+},
+{
+  "name": "Leverage HANA DB to enhance analytics on Python",
+  "descr": "SAP HANA DB provides a lot of in-memmory computing which really helps in faster processing of the records and also has very good analytical capabilities.",
+  "link": "http://www.google.com",
+  "imageurl": "images/11.jpg",
+  "color":""
+},
+{
+  "name": "Building a Custom Control",
+  "descr": "Sometimes standard controls cannot fulfil the requirement of the client. Or you may want to give a heavy look to the design and feel for which you might need to create a new control from scratch. I encountered the same request while working a with a client where he didn't want the standard tile but a rounded tile. Later, added he need more action on the tile itself. Follow the link to have a peak in project.",
+  "link": "http://www.google.com",
+  "imageurl": "images/20191213-Custom Control/1.png",
+  "color":"black"
+},
+{
+  "name": "Building a Chat Bot using SAP Conversational AI",
+  "descr": "Building a custom control",
+  "link": "http://www.google.com",
+  "imageurl": "images/1.jpg",
+  "color":""
+},
+{
+  "name": "Leverage HANA DB to enhance analytics on Python",
+  "descr": "SAP HANA DB provides a lot of in-memmory computing which really helps in faster processing of the records and also has very good analytical capabilities.",
+  "link": "http://www.google.com",
+  "imageurl": "images/11.jpg",
+  "color":""
+}
+]
+}
