@@ -31,7 +31,7 @@
     {% capture pageURLAbs %}{{ site.url }}{{ pageURL }}{% endcapture %}
     {% capture pageURLAbsEsc %}{{ pageURLAbs | escape }}{% endcapture %}
 
-    <link rel="canonical" href="{{ pageURLAbsEsc }}">
+    <!-- <link rel="canonical" href="{{ pageURLAbsEsc }}"> -->
 
     <!-- http://developers.facebook.com/docs/opengraph/ -->
     <!-- TODO is there a better liquid way of "if x then x else y"?
@@ -68,23 +68,3 @@
     <link href="/styles/mdb.min.css" rel="stylesheet">
     <!-- Your custom styles (optional) -->
     <link href="/styles/style.css" rel="stylesheet">
-
-    <!-- Prevent stale CSS in browser caches; update ?v on changes! -->
-    <link rel="stylesheet" href="/styles/h5bp-base.css" />
-    <link rel="stylesheet" href="/styles/common.css?v=2" />
-
-    <!-- this is needed before body to enable HTML5 elements in IE8- -->
-    <script src="/scripts/modernizr-1.7.min.js"></script>
-
-    <!-- Google Analytics, streamlined/optimized a bit: -->
-    <script>
-      var _gaq = _gaq || [];
-      _gaq.push(['_setAccount', 'UA-22174557-1']);
-      _gaq.push(['_trackPageview']);
-
-      (function() {
-        var ga = document.createElement('script'); ga.async = true;
-        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-      })();
-    </script>
