@@ -362,7 +362,7 @@
           width: 160px;
           position: fixed;
           z-index: 1;
-          top: 66px;
+          top: 64px;
           left: 0;
           background-color: #111;
           overflow-x: hidden;
@@ -390,3 +390,45 @@
           .sidebar {padding-top: 15px;}
           .sidebar a {font-size: 18px;}
         }
+
+        /** CONTENT **/
+
+article, section {
+  padding: 0.5em 0 1em;
+  position: relative;     /* TEMP HACK just for the h3 styles below */
+}
+
+/* articles and sections should be separated by borders... */
+article, section {
+  border-top: 1px solid #eee;
+}
+
+/* ...using border-top since our only way of excluding is after header */
+header + article, header + section {
+  border-top: none;
+}
+
+/* clearfix these in case any content is floated: j.mp/bestclearfix */
+article:after, section:after {
+  content: "\0020";
+  display: block;
+  clear: both;
+  overflow: hidden;
+  height: 0;
+  zoom: 1;
+}
+
+/** blog index: make post snippets look like normal, non-link text -- and
+  don't underline the text on hover! XXX FIXME for some reason, putting
+  text-decoration: none on the p doesn't work! TODO investigate... */
+a.post article p {
+  color: #444;
+}
+a.post:hover, a.post:active {
+  text-decoration: none;
+}
+/** but do make the headline look and feel like a link, incl. underline: */
+a.post:hover article h2,
+a.post:active article h2 {
+  text-decoration: underline;
+}
