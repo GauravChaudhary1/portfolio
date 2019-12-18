@@ -480,6 +480,6 @@ div.fb-comments span, div.fb-comments iframe {
 }
 
 
-.posts{
-  padding-left: 20%;
+div.posts{
+  margin-left: 200px;
 }
