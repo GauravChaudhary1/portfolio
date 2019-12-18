@@ -185,17 +185,10 @@
                         var menu_height = $('#navbar').height();
                         var scroll = $(window).scrollTop();                
         
-                        if (menu_pos > light_pos && menu_pos < (light_pos + light_height)) {
-                            console.log('1');
-                            console.log('light pos: '+ light_pos);
-                            console.log('light ht:' + light_height);
-                            console.log('menu ht:' + menu_height);
-                            console.log('menu pos:' + menu_pos);
+                        if (menu_pos > light_pos && menu_pos < (light_pos + light_height)) {                            
                             $('#navbar').removeClass('bg-black');                    
                         }
-                        else {
-                            console.log('light ht: '+ light_height);
-                            console.log('light pos: '+ light_pos);
+                        else {                            
                             if( menu_pos > 1 ){
                             $('#navbar').addClass('bg-black');
                         }                                        
