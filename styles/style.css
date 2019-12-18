@@ -394,7 +394,9 @@
         /** CONTENT **/
 
 article, section {
-  padding: 0.5em 0 1em;
+  margin-top: 65px;
+  padding-left: 10%;
+  padding-right: 10%;
   position: relative;     /* TEMP HACK just for the h3 styles below */
 }
 
