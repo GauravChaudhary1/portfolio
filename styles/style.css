@@ -478,3 +478,8 @@ div.fb-comments {
 div.fb-comments span, div.fb-comments iframe {
     width: 100% !important;
 }
+
+
+.posts{
+  padding-left: 20%;
+}

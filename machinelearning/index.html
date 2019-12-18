@@ -5,7 +5,7 @@
 {% include head.html %}
 {% include navbar.html %}
 {% include sidebar.html %}
-
+<div class="posts">
 {% for post in site.posts %}
     {% unless post.draft == true %}
     <a class="post" href="{{ post.url | remove:'.html' | escape }}">
@@ -34,7 +34,7 @@
     </a>
     {% endunless %}
     {% endfor %}
-
+</div>
     <!-- TEMP HACK this whole thing feels quite hacky. wish there were easier ways. -->
     <script>
         // iterate over all the posts above and grab their (absolute) URLs:
