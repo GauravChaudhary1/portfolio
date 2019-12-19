@@ -177,6 +177,14 @@
     </div>
     <br><br>
     <div id="blogs" class="wrap">
+        {% for post in site.posts %}
+        <div class="box box{{ forloop.index }} shadow{{ forloop.index }} ">
+            <h3 style="color:black;"> {{ post.title }} </h3>
+
+        </div>
+
+
+        {% endfor %}
     </div>
 
     <!-- <div class="footer">
@@ -255,8 +263,9 @@
                     element.appendChild(div);
                 }
 
-            }
-        readTextFile("data/data.json");
+            },
+            
+        // readTextFile("data/data.json");
     </script>
     <script type="text/javascript" src="/scripts/jquery-3.4.1.min.js"></script>
     <!-- Bootstrap tooltips -->
