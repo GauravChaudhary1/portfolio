@@ -19,8 +19,8 @@
   }
   
   .demo {
-    position: absolute;
-    /* top: 64px; */
+    position: fixed;
+    top: -2px;
     width: 25rem;
     height: 100%;
     box-shadow: 0 1rem 5rem rgba(0, 0, 0, 0.3);
@@ -28,8 +28,8 @@
   
   .static {
     height: 100%;
-    font-size: 1.8rem;
-    font-family: "Open Sans", Helvetica, Arial, sans-serif;
+    /* font-size: 1.8rem;
+    font-family: "Open Sans", Helvetica, Arial, sans-serif; */
     background: #6D7ADA;
   }
   .static:before, .static:after {
@@ -61,7 +61,7 @@
   .static__text {
     width: 80rem;
     position: relative;
-    top: 35%;
+    top: 40%;
     left: 50%;
     margin-left: -5rem;
     -webkit-transform: translate3d(0, -50%, 0);
