@@ -15,9 +15,7 @@ og_type: blog
         <h2>
             {{ post.title | escape }}          
             <!-- TODO categories -->
-        </h2>
-        <i><time pubdate datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%B %d, %Y" }}</time></i>
-        <br>
+        </h2>    
         <p>
             {{ post.description | escape }}
         </p>
