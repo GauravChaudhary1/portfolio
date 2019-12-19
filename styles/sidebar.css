@@ -21,7 +21,7 @@
   .demo {
     position: fixed;
     top: -2px;
-    width: 25rem;
+    width: 15rem;
     height: 100%;
     box-shadow: 0 1rem 5rem rgba(0, 0, 0, 0.3);
   }
@@ -76,7 +76,7 @@
   .sidebar-content {
     z-index: -1;
     position: absolute;
-    top: 0;
+    top: 64px;
     left: 0;
     width: 20rem;
     height: 100%;

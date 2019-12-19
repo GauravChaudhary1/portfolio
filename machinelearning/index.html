@@ -4,8 +4,8 @@
 
 {% include head.html %}
 {% include navbar.html %}
-{% include sidebar_start.html %}
-<div class="posts static__text">
+{% include sidebar.html %}
+<div class="posts">
     {% for category in site.categories %} 
     {% if category[0] == "machinelearning" %}
     {% for post in category[1] %}
@@ -37,5 +37,4 @@
   {% endif %}
 {% endfor %}
 </div>
-{% include sidebar_end.html %}
 {% include foot.html %}
