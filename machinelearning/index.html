@@ -5,11 +5,11 @@
 {% include head.html %}
 {% include navbar.html %}
 {% include sidebar_start.html %}
-<div class="posts">
+<div class="posts static__text">
     {% for category in site.categories %} 
     {% if category[0] == "machinelearning" %}
     {% for post in category[1] %}
-    <a class="post static__text" href="{{ post.url | remove:'.html' | escape }}">
+    <a class="post" href="{{ post.url | remove:'.html' | escape }}">
     <article>
 
         <h2>
