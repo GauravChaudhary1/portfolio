@@ -2643,7 +2643,9 @@ div.highlighter-rouge>pre,div.highlighter-rouge pre.highlight,figure.highlight>p
 }
 
 .highlight pre {
-    width: 100%
+    width: 100%;
+    color: #eff!important;
+    font-size: 120.5%;
 }
 
 .highlight .hll {
