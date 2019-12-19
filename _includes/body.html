@@ -177,7 +177,7 @@
     </div>
     <br><br>
     <div id="blogs" class="wrap">
-        {% for post in site.posts %}
+        {% for post in site.posts limit:6 %}
         <div class="box box{{ forloop.index }} shadow{{ forloop.index }} ">
             <h3 style="color:black;"> {{ post.title }} </h3>
 
@@ -187,86 +187,6 @@
         {% endfor %}
     </div>
 
-    <!-- <div class="footer">
-                <p>Footer</p>
-              </div> -->
-    <script>
-        $(document).ready(function () {
-            $(window).scroll(function () {
-                var light_pos = $('#video').offset().top;
-                var light_height = $('#video').height();
-                var menu_pos = $('#navbar').offset().top;
-                var menu_height = $('#navbar').height();
-                var scroll = $(window).scrollTop();
-
-                if (menu_pos > light_pos && menu_pos < (light_pos + light_height)) {
-                    $('#navbar').removeClass('bg-black');
-                }
-                else {
-                    if (menu_pos > 1) {
-                        $('#navbar').addClass('bg-black');
-                    }
-                }
-
-            })
-        });
-
-
-        function readTextFile(file) {
-            var rawFile = new XMLHttpRequest();
-            rawFile.open("GET", file, false);
-            rawFile.onreadystatechange = function () {
-                if (rawFile.readyState === 4) {
-                    if (rawFile.status === 200 || rawFile.status == 0) {
-                        var allText = rawFile.responseText;
-                        var obj = JSON.parse(allText);
-                        var data = obj.data;
-                        buildpage(data);
-                        console.log(obj);
-                    }
-                }
-            }
-            rawFile.send(null);
-        };
-
-        _getIndex = (path) => {
-            for (i = 0; i < path.length; i++) {
-                if (path[i]["tagName"] == "DIV") {
-                    var id = path[i].getAttribute("Id");
-                    if (id.includes("data/")) {
-                        return id.split("/")[1];
-                    }
-                }
-            }
-        },
-            buildpage = (data) => {
-                for (i = 0; i < 6; i++) {
-                    var div = document.createElement("div");
-                    var randomNo = Math.floor(Math.random() * 8) + 1;
-                    div.id = "data/" + i;
-                    div.onclick = (oEvent) => { console.log("yo") };
-                    div.classList.add("box");
-                    div.classList.add("box" + randomNo);
-                    div.classList.add("shadow" + randomNo);
-                    var para = document.createElement("h3");
-                    var node = document.createTextNode(data[i].name);
-                    if (data[i].color != "") {
-                        para.style.color = data[i].color;
-                    }
-                    if (randomNo > 8) {
-                        para.style.color = "black";
-                    }
-                    para.appendChild(node);
-                    div.appendChild(para);
-
-                    var element = document.getElementById("blogs");
-                    element.appendChild(div);
-                }
-
-            },
-            
-        // readTextFile("data/data.json");
-    </script>
     <script type="text/javascript" src="/scripts/jquery-3.4.1.min.js"></script>
     <!-- Bootstrap tooltips -->
     <script type="text/javascript" src="/scripts/popper.min.js"></script>
