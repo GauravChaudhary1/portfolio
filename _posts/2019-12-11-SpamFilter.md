@@ -1,5 +1,6 @@
 ---
 title: "Spam Filter using Logistic Regression"
+description: "Filtering SPAM/HAM on the data collected via emails, messages to classify using NLP and Logistic Regression."
 categories: [machinelearning]
 tags: [spamfilter,python]
 ---

@@ -13,13 +13,11 @@ og_type: blog
     <article>
 
         <h2>
-            {{ post.title | escape }}
-
-            <time pubdate datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%B %d, %Y" }}</time>
-
+            {{ post.title | escape }}          
             <!-- TODO categories -->
         </h2>
-
+        <i><time pubdate datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%B %d, %Y" }}</time></i>
+        <br>
         <p>
             {{ post.description | escape }}
         </p>
