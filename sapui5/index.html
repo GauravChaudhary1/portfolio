@@ -1,0 +1,40 @@
+---
+# no title/section/description; use defaults.
+---
+
+{% include head.html %}
+{% include navbar.html %}
+{% include sidebar.html %}
+<div class="posts">
+    {% for category in site.categories %} 
+    {% if category[0] == "sapui5" %}
+    {% for post in category[1] %}
+    <a class="post" href="{{ post.url | remove:'.html' | escape }}">
+    <article>
+
+        <h2>
+            {{ post.category | escape }}
+            {{ post.title | escape }}
+
+            <!-- TODO categories -->
+        </h2>
+        <i><time pubdate datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%B %d, %Y" }}</time></i>
+        <br>
+        <p>
+            {{ post.description | escape }}
+        </p>
+
+        <div class="stats">
+            <!-- This gets populated by script below -->
+            <span class="comments-count">&nbsp;</span>
+        </div>
+
+        <div class="continue">Continue reading &rarr;</div>
+
+    </article>
+    </a>
+    {% endfor %}
+  {% endif %}
+{% endfor %}
+</div>
+{% include foot.html %}

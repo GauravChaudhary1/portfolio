@@ -8,11 +8,12 @@
 
     <nav id="navbar" class="navbar fixed-top navbar-expand-lg navbar-dark scrolling-navbar bg-black">
         <div class="container">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+            aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+            </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-                </button>
+               
                 <!-- Left -->
                 <ul id="navMenu" class="navbar-nav mr-auto">
                     <li id="idHome" class="nav-item">
@@ -24,10 +25,10 @@
                         <a class="nav-link" href="/machinelearning/">Machine Learning</a>
                     </li>
                     <li id="idUI5" class="nav-item {% if page.url contains 'sapui5' %}active{% endif %}">
-                        <a class="nav-link" href="#" >SAP UI5</a>
+                        <a class="nav-link" href="/sapui5/" >SAP UI5</a>
                     </li>
                     <li id="idAbap" class="nav-item {% if page.url contains 'abap' %}active{% endif %}" >
-                        <a class="nav-link" href="#" >ABAP</a>
+                        <a class="nav-link" href="/abap/" >ABAP</a>
                     </li>
                 </ul>
             </div>
