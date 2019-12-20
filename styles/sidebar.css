@@ -76,7 +76,7 @@
   .sidebar-content {
     z-index: -1;
     position: absolute;
-    top: 64px;
+    top: 50px;
     left: 0;
     width: 20rem;
     height: 100%;
