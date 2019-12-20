@@ -4,7 +4,7 @@ destination: ./_site
 lsi: false
 pygments: true
 
-url: http://zgaur.in
+url: https://zgaur.in
 title: Gaurav Chaudhary
 description: 'Developer'
 permalink: /blog/:title.html
