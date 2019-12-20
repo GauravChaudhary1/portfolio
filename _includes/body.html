@@ -178,7 +178,10 @@
     <br><br>
     <div id="blogs" class="wrap">
         {% for post in site.posts limit:6 %}
-        <div class="box box{{ forloop.index }} shadow{{ forloop.index }} ">
+        {% capture postURL %}{{ page.url | remove:'.html' }}{% endcapture %}
+        {% capture postURLAbs %}{{ site.url }}{{ postURL }}{% endcapture %}
+        {% capture postURLAbsEsc %}{{ postURLAbs | escape }}{% endcapture %}
+        <div class="box box{{ forloop.index }} shadow{{ forloop.index }} " onclick="location.href='{{ postURLAbs | escape }}';" style="cursor: pointer;">
             <h3 style="color:black; font-size: 1vw;"> {{ post.title }} </h3>
 
         </div>
