@@ -40,14 +40,14 @@
     <meta property="og:type" content="{% if page.og_type %}{{ page.og_type | escape }}{% else %}website{% endif %}" />
     <meta property="og:description" content="{{ descriptionEsc }}" />
     {% if page.image %}
-    <!-- <meta property="og:image" content="{{ site.url | escape }}{{ page.image | escape }}" /> -->
+    <meta property="og:image" content="{{ site.url | escape }}{{ page.image | escape }}" />
     {% else %}
     <!-- XXX use my Gravatar as default OpenGraph image if none specified? -->
-    <!-- <meta property="og:image" content="http://gravatar.com/avatar/5af2930e39246c8339fa7ad8e394e96e?s=200"> -->
+    <meta property="og:image" content="/logo.JPG">
     {% endif %}
 
 
-    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="shortcut icon" href="/care.png">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"> </script>
     <!-- Font Awesome -->
