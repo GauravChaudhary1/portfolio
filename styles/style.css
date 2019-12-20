@@ -462,7 +462,7 @@ div.posts{
   transform: translateY(-50%);
 }
 
-.icon-bar a {
+.icon-bar-a {
   display: block;
   text-align: center;
   padding: 16px;
@@ -471,7 +471,7 @@ div.posts{
   font-size: 20px;
 }
 
-.icon-bar a:hover {
+.icon-bar-a:hover {
   background-color: #000;
 }
 
