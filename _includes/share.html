@@ -9,12 +9,21 @@
         <i class="fa fa-facebook"></i></a>
       
         <!-- twitter -->
-        <a class="twitter icon-bar-a" href="https://twitter.com/intent/tweet?status={{ page.title }}+{{ postURLAbs | escape }}" ><i class="fa fa-twitter"></i></a>
+        <a class="twitter icon-bar-a" href="https://twitter.com/intent/tweet?status={{ page.title }}+{{ postURLAbs | escape }}" 
+        target="popup" 
+        onclick="window.open('https://twitter.com/intent/tweet?status={{ page.title }}+{{ postURLAbs | escape }}','popup','width=600,height=600'); return false;">
+        <i class="fa fa-twitter"></i></a>
       
         <!-- google plus -->
-        <a class="google icon-bar-a" href="https://plus.google.com/share?url={{ postURLAbs | escape }}" ><i class="fa fa-google"></i></a>
+        <a class="google icon-bar-a" href="https://plus.google.com/share?url={{ postURLAbs | escape }}" 
+        target="popup" 
+        onclick="window.open('https://plus.google.com/share?url={{ postURLAbs | escape }}','popup','width=600,height=600'); return false;">
+        <i class="fa fa-google"></i></a>
       
         <!-- linkedin -->
-        <a class="linkedin icon-bar-a" href="https://www.linkedin.com/shareArticle?mini=true&url={{ postURLAbs | escape }}&title={{ page.title }}" ><i class="fa fa-linkedin"></i></a>
+        <a class="linkedin icon-bar-a" href="https://www.linkedin.com/shareArticle?mini=true&url={{ postURLAbs | escape }}&title={{ page.title }}" 
+        target="popup" 
+        onclick="window.open('https://www.linkedin.com/shareArticle?mini=true&url={{ postURLAbs | escape }}&title={{ page.title }}','popup','width=600,height=600'); return false;">
+        <i class="fa fa-linkedin"></i></a>
 
         </div>
