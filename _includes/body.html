@@ -187,6 +187,28 @@
         {% endfor %}
     </div>
 
+    <script>
+        $(document).ready(function () {
+            $(window).scroll(function () {
+                var light_pos = $('#video').offset().top;
+                var light_height = $('#video').height();
+                var menu_pos = $('#navbar').offset().top;
+                var menu_height = $('#navbar').height();
+                var scroll = $(window).scrollTop();                
+
+                if (menu_pos > light_pos && menu_pos < (light_pos + light_height)) {                    
+                    $('#navbar').removeClass('bg-black');                    
+                }
+                else {                    
+                    if( menu_pos > 1 ){
+                    $('#navbar').addClass('bg-black');
+                }                                        
+                }
+
+            })
+        });
+        </script>
+
     <script type="text/javascript" src="/scripts/jquery-3.4.1.min.js"></script>
     <!-- Bootstrap tooltips -->
     <script type="text/javascript" src="/scripts/popper.min.js"></script>
