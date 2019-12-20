@@ -13,19 +13,21 @@
 
 <footer>
     <div id="share">
-
+        {% capture postURL %}{{ page.url | remove:'.html' }}{% endcapture %}
+        {% capture postURLAbs %}{{ site.url }}{{ postURL }}{% endcapture %}
+        {% capture postURLAbsEsc %}{{ postURLAbs | escape }}{% endcapture %}
         <!-- facebook -->
-        <a class="facebook" href="https://www.facebook.com/share.php?u={{ site.url }}&title={{ page.title }}" target="blank"><i class="fa fa-facebook"></i></a>
+        <a class="facebook" href="https://www.facebook.com/share.php?u={{ postURL | escape }}&title={{ page.title }}" target="blank"><i class="fa fa-facebook"></i></a>
       
         <!-- twitter -->
-        <a class="twitter" href="https://twitter.com/intent/tweet?status={{ page.title }}+{{ site.url }}" target="blank"><i class="fa fa-twitter"></i></a>
+        <a class="twitter" href="https://twitter.com/intent/tweet?status={{ page.title }}+{{ postURL | escape }}" target="blank"><i class="fa fa-twitter"></i></a>
       
         <!-- google plus -->
-        <a class="googleplus" href="https://plus.google.com/share?url={{ site.url }}" target="blank"><i class="fa fa-google-plus"></i></a>
+        <a class="googleplus" href="https://plus.google.com/share?url={{ postURL | escape }}" target="blank"><i class="fa fa-google-plus"></i></a>
       
         <!-- linkedin -->
-        <a class="linkedin" href="https://www.linkedin.com/shareArticle?mini=true&url={{ site.url }}&title={{ page.title }}" target="blank"><i class="fa fa-linkedin"></i></a>
-                
+        <a class="linkedin" href="https://www.linkedin.com/shareArticle?mini=true&url={{ postURL | escape }}&title={{ page.title }}" target="blank"><i class="fa fa-linkedin"></i></a>
+
         
       </div>
 </footer>

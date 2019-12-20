@@ -14,16 +14,14 @@ og_type: article
 
         <h2>
             <a class="current" href="{{ postURL | escape }}">
-                {{ page.title | escape }}</a>
-
-            <time pubdate datetime="{{ page.date | date: "%Y-%m-%d" }}">{{ page.date | date: "%B %d, %Y" }}</time>
-
+                {{ page.title | escape }}</a>            
             <!-- TODO categories? -->
         </h2>
+        <i><time pubdate datetime="{{ page.date | date: "%Y-%m-%d" }}">{{ page.date | date: "%B %d, %Y" }}</time> </i>
 
         <!-- important: don't escape content! it'll actually be HTML markup. -->
         {{ content }}
 
     </article>
 
-{% include foot.html %}
+    {% include share.html %}
