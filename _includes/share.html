@@ -1,18 +1,4 @@
-<script type="text/javascript" src="/scripts/jquery-3.4.1.min.js"></script>
-<!-- Bootstrap tooltips -->
-<script type="text/javascript" src="/scripts/popper.min.js"></script>
-<!-- Bootstrap core JavaScript -->
-<script type="text/javascript" src="/scripts/bootstrap.min.js"></script>
-<!-- MDB core JavaScript -->
-<script type="text/javascript" src="/scripts/mdb.min.js"></script>
-<!-- Initializations -->
-<script type="text/javascript">
-    // Animations initialization
-    new WOW().init();
-</script>
-
-<footer>
-    <div id="share">
+<div class="icon-bar">
         {% capture postURL %}{{ page.url | remove:'.html' }}{% endcapture %}
         {% capture postURLAbs %}{{ site.url }}{{ postURL }}{% endcapture %}
         {% capture postURLAbsEsc %}{{ postURLAbs | escape }}{% endcapture %}
@@ -28,10 +14,4 @@
         <!-- linkedin -->
         <a class="linkedin" href="https://www.linkedin.com/shareArticle?mini=true&url={{ postURLAbs | escape }}&title={{ page.title }}" target="blank"><i class="fa fa-linkedin"></i></a>
 
-        
-      </div>
-</footer>
-
-</body>
-
-</html>
+        </div>

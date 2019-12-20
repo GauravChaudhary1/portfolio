@@ -5,7 +5,7 @@ og_type: article
 
 {% include bloghead.html %}
 {% include navbar.html %}
-
+{% include share.html %}
     <article>
 
         {% capture postURL %}{{ page.url | remove:'.html' }}{% endcapture %}
@@ -24,4 +24,5 @@ og_type: article
 
     </article>
 
-    {% include share.html %}
+
+    {% include foot.html %}
