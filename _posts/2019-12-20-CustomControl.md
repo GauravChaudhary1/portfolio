@@ -10,4 +10,3 @@ Post is in Progress
 ```javascript
 var abc = new Obj();
 ```
-
