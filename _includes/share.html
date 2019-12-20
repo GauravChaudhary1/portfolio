@@ -3,7 +3,10 @@
         {% capture postURLAbs %}{{ site.url }}{{ postURL }}{% endcapture %}
         {% capture postURLAbsEsc %}{{ postURLAbs | escape }}{% endcapture %}
         <!-- facebook -->
-        <a class="facebook icon-bar-a" href="https://www.facebook.com/share.php?u={{ postURLAbs | escape }}&title={{ page.title }}" ><i class="fa fa-facebook"></i></a>
+        <a class="facebook icon-bar-a" href="https://www.facebook.com/share.php?u={{ postURLAbs | escape }}&title={{ page.title }}" 
+        target="popup" 
+        onclick="window.open('https://www.facebook.com/share.php?u={{ postURLAbs | escape }}&title={{ page.title }}','popup','width=600,height=600'); return false;">
+        <i class="fa fa-facebook"></i></a>
       
         <!-- twitter -->
         <a class="twitter icon-bar-a" href="https://twitter.com/intent/tweet?status={{ page.title }}+{{ postURLAbs | escape }}" ><i class="fa fa-twitter"></i></a>
