@@ -31,11 +31,6 @@
     {% capture pageURLAbs %}{{ site.url }}{{ pageURL }}{% endcapture %}
     {% capture pageURLAbsEsc %}{{ pageURLAbs | escape }}{% endcapture %}
 
-    <!-- <link rel="canonical" href="{{ pageURLAbsEsc }}"> -->
-
-    <!-- http://developers.facebook.com/docs/opengraph/ -->
-    <!-- TODO is there a better liquid way of "if x then x else y"?
-         "x or y" doesn't seem to work, neither "or" nor "||". -->
     {% capture ogTitle %}{% if page.title %}{{ pageTitleEsc }}{% elsif page.section %}{{ pageSectionEsc }}{% else %}{{ siteTitleEsc }}{% endif %}{% endcapture %}
     {% capture ogSiteName %}{% if page.title && page.section %}{{ pageSectionEsc }}
         - {% endif %}{{ siteTitleEsc }}{% endcapture %}
