@@ -40,7 +40,7 @@
     <meta property="og:type" content="{% if page.og_type %}{{ page.og_type | escape }}{% else %}website{% endif %}" />
     <meta property="og:description" content="{{ descriptionEsc }}" />
     {% if page.image %}
-    <meta property="og:image" content="{{ site.url | escape }}{{ page.image | escape }}" />
+    <!-- <meta property="og:image" content="{{ site.url | escape }}{{ page.image | escape }}" /> -->
     {% else %}
     <meta property="og:image" content="/logo.JPG">
     {% endif %}
