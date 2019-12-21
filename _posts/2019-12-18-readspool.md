@@ -7,13 +7,13 @@ tags: [spool, alv]
 
 <p>
 We, ABAPers, often get this requirement that we need to extract the data out of spool and use it for some purpose like table display, send to excel, send as an email content. You get the jist, right? Then what? We go ahead and create a length according the data we see in the spool and pray that data being retieved doesn't exceed the length limit.
-<br>
-<img src="{{site.url}}{{site.baseurl}}/images/ABAP/20191220/meme2.jpg">
-<br>
+<br><br><br>
+<img src="{{site.url}}{{site.baseurl}}/images/ABAP/20191220/meme2.JPG">
+<br><br><br><br>
 We can easily read the spool using different Function Modules and Spool Id. But we always get stuck when we need what kind of data is being retrieved? Why? Because field catalog is missing and what is returned is just plain text file.
-<br>
-<img src="{{site.url}}{{site.baseurl}}/images/ABAP/20191220/meme1.jpg">
-<br><br>
+<br><br><br><br>
+<img src="{{site.url}}{{site.baseurl}}/images/ABAP/20191220/meme1.JPG">
+<br><br><br><br>
 What if I told you that this can be knocked over?<br><br>
 <h3>&lt;&lt;ENTERS&gt;&gt; &nbsp;&nbsp;&nbsp;&nbsp; <b> ALV Runtime Services </b></h3>
 </p>
