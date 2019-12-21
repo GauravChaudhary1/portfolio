@@ -7,12 +7,15 @@ tags: [fiori, pdf viewer]
 
 <p>
 PDFViewer Control helps in viewing a PDF document within a WebPage, without having the need to download the document first and then view it. There could be multiple sources for the PDF from where the document can be loaded. Generally, I could figure out three kinds of source origin for the document.
-1. Access PDF File which has different origin. Example: Sharepoint, server.
+<ul>
+<li>1. Access PDF File which has different origin. Example: Sharepoint, server.</li>
 
-2. Access PDF File which is on same project directory.
+<li>2. Access PDF File which is on same project directory.</li>
 
-3. Access PDF File from the database using oData Services.
+<li>3. Access PDF File from the database using oData Services.</li>
+</ul>
 
+<br>
 Lets see how to get these working.
  </p>
 
