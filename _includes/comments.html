@@ -1,2 +1,3 @@
 {% capture pageURL %}{{ page.url }}{% endcapture %}
-<div class="fb-comments" data-href="{{pageURL}}" data-width="" data-numposts="5"></div>
+{% capture postURLAbs %}{{ site.url }}{% endcapture %}
+<div class="fb-comments" data-href="{{postURLAbs}}" data-width="" data-numposts="5"></div>
