@@ -34,7 +34,7 @@ Since, in Webdynpro, I could not access 'onClick' event of the UI element and ne
 <br><br><br><br>
 
 ```abap
-  " Component Controller -> WDDOINIT  
+    
   DATA(lo_custom_style_manager) = wd_this->wd_get_api( )->get_application( )->get_custom_style_manager( ).
 
   DATA lo_btn_style_properties TYPE if_wd_custom_style=>t_style_properties.
