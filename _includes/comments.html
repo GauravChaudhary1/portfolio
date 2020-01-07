@@ -1,1 +1,2 @@
-<div class="fb-comments" data-href="{% page.url %}" data-width="" data-numposts="5"></div>
+{% capture pageURL %}{{ page.url }}{% endcapture %}
+<div class="fb-comments" data-href="{{pageURL}}" data-width="" data-numposts="5"></div>
