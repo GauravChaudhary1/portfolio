@@ -35,7 +35,7 @@ Since, in Webdynpro, I could not access 'onClick' event of the UI element and ne
 
 ```abap
     
-  DATA(lo_custom_style_manager) = wd_this->wd_get_api( )->get_application( )->get_custom_style_manager( ).
+  lo_custom_style_manager = wd_this->wd_get_api( )->get_application( )->get_custom_style_manager( ).
 
   DATA lo_btn_style_properties TYPE if_wd_custom_style=>t_style_properties.
 
@@ -47,7 +47,7 @@ Since, in Webdynpro, I could not access 'onClick' event of the UI element and ne
                                       ( name = 'fontColor' value = '#666!important' ) "label Color
                                     ).
 
-  DATA(lo_btn_custom_style) = lo_custom_style_manager->create_custom_style( style_class_name = 'myCustomButton'
+  lo_btn_custom_style = lo_custom_style_manager->create_custom_style( style_class_name = 'myCustomButton'
                                                                       library_name     = 'STANDARD'
                                                                       element_type     = 'BUTTON'
                                                                       style_properties = lo_btn_style_properties ).
