@@ -26,16 +26,12 @@ Since, in Webdynpro, I could not access 'onClick' event of the UI element and ne
 <br><br><br><br>
 <img src="{{site.url}}{{site.baseurl}}/images/ABAP/20200106/4.JPG">
 <br><br><br><br>
-<h3>Wait! Its not resolved yet, adding a button instead of Label distorts the visual harmonization and to some organization that is more important escpecially SAP.</b>
+<h3>Wait! Its not resolved yet, adding a button instead of Label distorts the visual harmonization and to some organization that is more important escpecially SAP.</h3>
 <br><br><br><br>
 <h3>CSS comes to the rescue.</h3>
 <br><br><br><br>
 <p>If I am able to convert a button into label with all its properties, voilà, its all sorted for me then. And great thing, I did.</p>
 <br><br><br><br>
-
-```abap
-Testing for abap
-```
 
 ```abap
     
