@@ -61,7 +61,7 @@ Theme which is created in the WDDOINIT method, then needs to be passed to the Bu
 </p>
 
 <br><br>
-Results can be seens here.
+Results can be seen here.
 <br><br><br><br>
 <img src="{{site.url}}{{site.baseurl}}/images/ABAP/20200106/3.jpg">
 <br><br><br><br>
