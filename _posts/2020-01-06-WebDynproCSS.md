@@ -12,7 +12,7 @@ There are various blogs over the internet demonstrating the usage of Custom CSS 
 <p>On the left side of screen, there are two UI elements (TextEdit) for input (<i>Subject & Text</i>) and on the right side, there are buttons which will populate the either of the two inputs.</p>
 
 <br><br><br><br>
-<img src="{{site.url}}{{site.baseurl}}/images/ABAP/20200106/1.jpg">
+<img src="{{site.url}}{{site.baseurl}}/images/ABAP/20200106/1.JPG">
 <br><br><br><br>
 <p>However, in this case, there is no option to get the trigger where exactly user wants to put the text. Is it in Input1 or Input2?
 Since, in Webdynpro, I could not access 'onClick' event of the UI element and neither can we engage with the DOM elements directly.</p>
@@ -24,7 +24,7 @@ Since, in Webdynpro, I could not access 'onClick' event of the UI element and ne
 <br><br>
 <b>Something like this:</b>
 <br><br><br><br>
-<img src="{{site.url}}{{site.baseurl}}/images/ABAP/20200106/4.jpg">
+<img src="{{site.url}}{{site.baseurl}}/images/ABAP/20200106/4.JPG">
 <br><br><br><br>
 <h3>Wait! Its not resolved yet, adding a button instead of Label distorts the visual harmonization and to some organization that is more important escpecially SAP.</b>
 <br><br><br><br>
