@@ -32,6 +32,7 @@ Since, in Webdynpro, I could not access 'onClick' event of the UI element and ne
 <br><br><br><br>
 <p>If I am able to convert a button into label with all its properties, voilà, its all sorted for me then. And great thing, I did.</p>
 <br><br><br><br>
+
 ```abap
   " Component Controller -> WDDOINIT  
   DATA(lo_custom_style_manager) = wd_this->wd_get_api( )->get_application( )->get_custom_style_manager( ).
@@ -52,7 +53,6 @@ Since, in Webdynpro, I could not access 'onClick' event of the UI element and ne
                                                                       style_properties = lo_btn_style_properties ).
 
   lo_custom_style_manager->add_custom_style( lo_btn_custom_style ).
-
 ```
 
 <br><br><br><br>
