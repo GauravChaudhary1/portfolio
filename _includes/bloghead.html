@@ -76,4 +76,25 @@
     h3{
         letter-spacing: 0px !important;  
     }
+
+    section{
+    position: relative;
+    background-color: #74a6ae;
+    padding: 2rem;
+    text-align: center;
+    }
+
+    section::before {
+    content: "";
+
+    position : absolute;
+    z-index  : -1;
+    bottom   : 15px;
+    right    : 5px;
+    width    : 50%;
+    top      : 80%;
+
+    box-shadow: 0px 13px 10px black;
+    transform: rotate(4deg);
+    }
     </style>
