@@ -8,3 +8,17 @@ url: https://zgaur.in
 title: Gaurav Chaudhary
 description: 'Developer'
 permalink: /blog/:title.html
+
+
+defaults:
+  # _posts
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      author_profile: true
+      read_time: true
+      comments: # true
+      share: true
+      related: true
