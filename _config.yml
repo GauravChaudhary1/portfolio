@@ -1,4 +1,4 @@
-safe: true
+safe: false
 source: .
 destination: ./_site
 lsi: false
@@ -8,6 +8,12 @@ url: https://zgaur.in
 title: Gaurav Chaudhary
 description: 'Developer'
 permalink: /blog/:title.html
+
+plugins:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-gist
+  - jekyll-feed
 
 
 defaults:
