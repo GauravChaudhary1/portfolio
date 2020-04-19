@@ -1,0 +1,6 @@
+I"•<p>
+PDFViewer Control helps in viewing a PDF document within a WebPage, without having the need to download the document first and then view it. There could be multiple sources for the PDF from where the document can be loaded. Generally, I could figure out three kinds of source origin for the document.
+<ul>
+<li>1. Access PDF File which has different origin. Example: Sharepoint, server.</li>
+</ul></p>
+:ET

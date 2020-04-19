@@ -1,0 +1,441 @@
+I",�<h1 id="part-of-speech-tagging">Part of Speech Tagging</h1>
+
+<h2 id="problem-statement">Problem Statement</h2>
+
+<p>In this article, we’ll try and predict the Part of Speech (POS) tag for each word in a provided sentence.</p>
+
+<p>Here we will build a model using Hidden Markov Models which would help us predict the POS tags for all words in an utterance.</p>
+
+<h3 id="what-is-a-pos-tag">What is a POS tag?</h3>
+
+<p>In corpus linguistics, part-of-speech tagging (POS tagging or PoS tagging or POST), also called grammatical tagging or word-category disambiguation, is the process of marking up a word in a text (corpus) as corresponding to a particular part of speech, based on both its definition and its context—i.e., its relationship with adjacent and related words in a phrase, sentence, or paragraph. A simplified form of this is commonly taught to school-age children, in the identification of words as nouns, verbs, adjectives, adverbs, etc.</p>
+
+<h3 id="dataset">Dataset</h3>
+
+<p>The dataset can be downloaded from <a href="https://drive.google.com/open?id=1wNC_Oe99AqwaaCK0slF4zS64pq-4OY27"> here </a>.</p>
+
+<h4 id="dataset-description">Dataset Description</h4>
+<h5 id="sample-tuple">Sample Tuple</h5>
+<p>b100-5507</p>
+
+<p>Mr.	NOUN
+<br />
+Podger	NOUN
+<br />
+had	VERB
+<br />
+thanked	VERB
+<br />
+him	PRON
+<br />
+gravely	ADV
+<br />
+,	.
+<br />
+and	CONJ
+<br />
+now	ADV
+<br />
+he	PRON
+<br />
+made	VERB
+<br />
+use	NOUN
+<br />
+of	ADP
+<br />
+the	DET
+<br />
+advice	NOUN
+<br />
+.	.
+<br /></p>
+<h5 id="explanation">Explanation</h5>
+<p>The first token “b100-5507” is just a key and acts like an identifier to indicate the beginning of a sentence.
+<br />
+The other tokens have a (Word, POS Tag) pairing.</p>
+
+<p><strong>List of POS Tags are:</strong>
+.
+<br />
+ADJ
+<br />
+ADP
+<br />
+ADV
+<br />
+CONJ
+<br />
+DET
+<br />
+NOUN
+<br />
+NUM
+<br />
+PRON
+<br />
+PRT
+<br />
+VERB
+<br />
+X</p>
+
+<p><strong>Note</strong>
+<br />
+<strong>.</strong> is used to indicate special characters such as ‘.’, ‘,’
+<br />
+<strong>X</strong> is used to indicate vocab not part of Enlish Language mostly.
+Others are Standard POS tags.</p>
+
+<h3 id="train-test-split">Train-Test Split</h3>
+<p>Let us use a 80-20 split of our data for training and evaluation purpose.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#Import libraries
+</span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="kn">from</span> <span class="nn">IPython.core.display</span> <span class="kn">import</span> <span class="n">HTML</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">namedtuple</span><span class="p">,</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">pomegranate</span> <span class="kn">import</span> <span class="n">State</span><span class="p">,</span> <span class="n">HiddenMarkovModel</span><span class="p">,</span> <span class="n">DiscreteDistribution</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">import</span> <span class="nn">random</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#Read data
+</span><span class="n">Sentence</span> <span class="o">=</span> <span class="n">namedtuple</span><span class="p">(</span><span class="s">"Sentence"</span><span class="p">,</span> <span class="s">"words tags"</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">read_data</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+<span class="c1">#   Read tagged data from the file provided.
+</span>    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s">'r'</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">sentence_lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">l</span><span class="p">.</span><span class="n">split</span><span class="p">(</span><span class="s">"</span><span class="si">\</span><span class="se">n</span><span class="s">"</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">f</span><span class="p">.</span><span class="n">read</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="s">"</span><span class="si">\</span><span class="se">n</span><span class="si">\</span><span class="se">n</span><span class="s">"</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">OrderedDict</span><span class="p">(((</span><span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Sentence</span><span class="p">(</span><span class="o">*</span><span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">l</span><span class="p">.</span><span class="n">strip</span><span class="p">().</span><span class="n">split</span><span class="p">(</span><span class="s">"</span><span class="si">\</span><span class="se">t</span><span class="s">"</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">s</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])))</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sentence_lines</span> <span class="k">if</span> <span class="n">s</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+
+
+<span class="k">def</span> <span class="nf">read_tags</span><span class="p">(</span> <span class="p">):</span>
+<span class="c1">#   Read all the tags mentioned above
+</span>    <span class="n">tags</span> <span class="o">=</span> <span class="p">(</span><span class="s">'.'</span><span class="p">,</span>
+           <span class="s">'ADJ'</span><span class="p">,</span>
+           <span class="s">'ADP'</span><span class="p">,</span>
+           <span class="s">'ADV'</span><span class="p">,</span>
+           <span class="s">'CONJ'</span><span class="p">,</span>
+           <span class="s">'DET'</span><span class="p">,</span>
+           <span class="s">'NOUN'</span><span class="p">,</span>
+           <span class="s">'NUM'</span><span class="p">,</span>
+           <span class="s">'PRON'</span><span class="p">,</span>
+           <span class="s">'PRT'</span><span class="p">,</span>
+           <span class="s">'VERB'</span><span class="p">,</span>
+           <span class="s">'X'</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span>
+
+<span class="c1"># Class to divide the dataset into train and test, based on the keys.
+</span><span class="k">class</span> <span class="nc">Subset</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">"BaseSet"</span><span class="p">,</span> <span class="s">"sentences keys vocab X tagset Y N stream"</span><span class="p">)):</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">sentences</span><span class="p">,</span> <span class="n">keys</span><span class="p">):</span>
+        <span class="n">word_sequences</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">sentences</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">words</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">])</span>
+        <span class="n">tag_sequences</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">sentences</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">tags</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">])</span>
+        <span class="n">wordset</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">word_sequences</span><span class="p">))</span>
+        <span class="n">tagset</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">tag_sequences</span><span class="p">))</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">sentences</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">words</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">)))</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">word_sequences</span><span class="p">),</span> <span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">tag_sequences</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">().</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">sentences</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">},</span> <span class="n">keys</span><span class="p">,</span> <span class="n">wordset</span><span class="p">,</span> <span class="n">word_sequences</span><span class="p">,</span>
+                               <span class="n">tagset</span><span class="p">,</span> <span class="n">tag_sequences</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">stream</span><span class="p">.</span><span class="n">__iter__</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">sentences</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">sentences</span><span class="p">.</span><span class="n">items</span><span class="p">())</span>
+
+
+<span class="c1">#     Main class to read the dataset and split it into train and test set
+</span><span class="k">class</span> <span class="nc">Dataset</span><span class="p">(</span><span class="n">namedtuple</span><span class="p">(</span><span class="s">"_Dataset"</span><span class="p">,</span> <span class="s">"sentences keys vocab X tagset Y training_set testing_set N stream"</span><span class="p">)):</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">datafile</span><span class="p">,</span> <span class="n">train_test_split</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">112890</span><span class="p">):</span>
+        <span class="n">tagset</span> <span class="o">=</span> <span class="n">read_tags</span><span class="p">()</span>
+        <span class="n">sentences</span> <span class="o">=</span> <span class="n">read_data</span><span class="p">(</span><span class="n">datafile</span><span class="p">)</span>
+        <span class="n">keys</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">sentences</span><span class="p">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">wordset</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">[</span><span class="n">s</span><span class="p">.</span><span class="n">words</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sentences</span><span class="p">.</span><span class="n">values</span><span class="p">()]))</span>
+        <span class="n">word_sequences</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">sentences</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">words</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">])</span>
+        <span class="n">tag_sequences</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">([</span><span class="n">sentences</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">tags</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">])</span>
+        <span class="n">N</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">s</span><span class="p">.</span><span class="n">words</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sentences</span><span class="p">.</span><span class="n">values</span><span class="p">())))</span>
+        
+        <span class="c1"># split data into train/test sets
+</span>        <span class="n">_keys</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">keys</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span> <span class="n">random</span><span class="p">.</span><span class="n">seed</span><span class="p">(</span><span class="n">seed</span><span class="p">)</span>
+        <span class="n">random</span><span class="p">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">_keys</span><span class="p">)</span>
+        <span class="n">split</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">train_test_split</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">_keys</span><span class="p">))</span>
+        <span class="n">training_data</span> <span class="o">=</span> <span class="n">Subset</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="n">_keys</span><span class="p">[:</span><span class="n">split</span><span class="p">])</span>
+        <span class="n">testing_data</span> <span class="o">=</span> <span class="n">Subset</span><span class="p">(</span><span class="n">sentences</span><span class="p">,</span> <span class="n">_keys</span><span class="p">[</span><span class="n">split</span><span class="p">:])</span>
+        <span class="n">stream</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">word_sequences</span><span class="p">),</span> <span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">tag_sequences</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">().</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">sentences</span><span class="p">),</span> <span class="n">keys</span><span class="p">,</span> <span class="n">wordset</span><span class="p">,</span> <span class="n">word_sequences</span><span class="p">,</span> <span class="n">tagset</span><span class="p">,</span>
+                               <span class="n">tag_sequences</span><span class="p">,</span> <span class="n">training_data</span><span class="p">,</span> <span class="n">testing_data</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="n">stream</span><span class="p">.</span><span class="n">__iter__</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">sentences</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">sentences</span><span class="p">.</span><span class="n">items</span><span class="p">())</span>
+    
+
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#Pre-process data (Whatever you feel might be required)
+</span><span class="n">data</span> <span class="o">=</span> <span class="n">Dataset</span><span class="p">(</span><span class="s">"data.txt"</span><span class="p">,</span> <span class="n">train_test_split</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s">"There are {} sentences in the corpus."</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"There are {} sentences in the training set."</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">training_set</span><span class="p">)))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"There are {} sentences in the testing set."</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">testing_set</span><span class="p">)))</span>
+
+<span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">training_set</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">testing_set</span><span class="p">),</span> \
+       <span class="s">"The number of sentences in the training set + testing set should sum to the number of sentences in the corpus"</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>There are 57340 sentences in the corpus.
+There are 45872 sentences in the training set.
+There are 11468 sentences in the testing set.
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#Data Description
+</span>
+<span class="c1"># Taking a key at random from dataset to check the sentence
+</span><span class="n">key</span> <span class="o">=</span> <span class="s">'b100-38532'</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Sentence: {}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"words:</span><span class="si">\</span><span class="se">n</span><span class="si">\</span><span class="se">t</span><span class="s">{!s}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">sentences</span><span class="p">[</span><span class="n">key</span><span class="p">].</span><span class="n">words</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"tags:</span><span class="si">\</span><span class="se">n</span><span class="si">\</span><span class="se">t</span><span class="s">{!s}"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">sentences</span><span class="p">[</span><span class="n">key</span><span class="p">].</span><span class="n">tags</span><span class="p">))</span>
+
+
+<span class="c1"># Check number of unique words in the corpus
+</span><span class="k">print</span><span class="p">(</span><span class="s">"There are a total of {} samples of {} unique words in the corpus."</span>
+      <span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">N</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">vocab</span><span class="p">)))</span>
+
+<span class="c1"># Number of samples generated using unique words in training set.
+</span><span class="k">print</span><span class="p">(</span><span class="s">"There are {} samples of {} unique words in the training set."</span>
+      <span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">training_set</span><span class="p">.</span><span class="n">N</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">training_set</span><span class="p">.</span><span class="n">vocab</span><span class="p">)))</span>
+
+<span class="c1"># Number of the samples generated using unique words in testing set.
+</span><span class="k">print</span><span class="p">(</span><span class="s">"There are {} samples of {} unique words in the testing set."</span>
+      <span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">testing_set</span><span class="p">.</span><span class="n">N</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">testing_set</span><span class="p">.</span><span class="n">vocab</span><span class="p">)))</span>
+
+<span class="c1"># Number of words which are not present in the training set.
+</span><span class="k">print</span><span class="p">(</span><span class="s">"There are {} words in the test set that are missing in the training set."</span>
+      <span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">testing_set</span><span class="p">.</span><span class="n">vocab</span> <span class="o">-</span> <span class="n">data</span><span class="p">.</span><span class="n">training_set</span><span class="p">.</span><span class="n">vocab</span><span class="p">)))</span>
+
+<span class="k">assert</span> <span class="n">data</span><span class="p">.</span><span class="n">N</span> <span class="o">==</span> <span class="n">data</span><span class="p">.</span><span class="n">training_set</span><span class="p">.</span><span class="n">N</span> <span class="o">+</span> <span class="n">data</span><span class="p">.</span><span class="n">testing_set</span><span class="p">.</span><span class="n">N</span><span class="p">,</span> \
+       <span class="s">"The number of training + test samples should sum to the total number of samples"</span>
+
+<span class="c1"># accessing words with Dataset.X and tags with Dataset.Y 
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>    
+    <span class="k">print</span><span class="p">(</span><span class="s">"Sentence {}:"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">data</span><span class="p">.</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Labels {}:"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">data</span><span class="p">.</span><span class="n">Y</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+    <span class="k">print</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Sentence: b100-38532
+words:
+	('Perhaps', 'it', 'was', 'right', ';', ';')
+tags:
+	('ADV', 'PRON', 'VERB', 'ADJ', '.', '.')
+There are a total of 1161192 samples of 56057 unique words in the corpus.
+There are 928458 samples of 50536 unique words in the training set.
+There are 232734 samples of 25112 unique words in the testing set.
+There are 5521 words in the test set that are missing in the training set.
+Sentence 1: ('Mr.', 'Podger', 'had', 'thanked', 'him', 'gravely', ',', 'and', 'now', 'he', 'made', 'use', 'of', 'the', 'advice', '.')
+
+Labels 1: ('NOUN', 'NOUN', 'VERB', 'VERB', 'PRON', 'ADV', '.', 'CONJ', 'ADV', 'PRON', 'VERB', 'NOUN', 'ADP', 'DET', 'NOUN', '.')
+
+Sentence 2: ('But', 'there', 'seemed', 'to', 'be', 'some', 'difference', 'of', 'opinion', 'as', 'to', 'how', 'far', 'the', 'board', 'should', 'go', ',', 'and', 'whose', 'advice', 'it', 'should', 'follow', '.')
+
+Labels 2: ('CONJ', 'PRT', 'VERB', 'PRT', 'VERB', 'DET', 'NOUN', 'ADP', 'NOUN', 'ADP', 'ADP', 'ADV', 'ADV', 'DET', 'NOUN', 'VERB', 'VERB', '.', 'CONJ', 'DET', 'NOUN', 'PRON', 'VERB', 'VERB', '.')
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#HMM Model Goes Here
+</span>
+<span class="c1"># To determine the probability of one state finite automata(single tag probability)
+</span><span class="k">def</span> <span class="nf">unigram_counts</span><span class="p">(</span><span class="n">sequences</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="n">Counter</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+
+<span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">tag</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">training_set</span><span class="p">.</span><span class="n">stream</span><span class="p">())]</span>
+<span class="n">tag_unigrams</span> <span class="o">=</span> <span class="n">unigram_counts</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span>
+
+
+<span class="c1"># To determine the probability of two states combined to see which tags comes together
+# with high probability
+</span><span class="k">def</span> <span class="nf">bigram_counts</span><span class="p">(</span><span class="n">sequences</span><span class="p">):</span>
+
+    <span class="n">d</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">d</span>
+
+<span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">tag</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">stream</span><span class="p">())]</span>
+<span class="n">o</span> <span class="o">=</span> <span class="p">[(</span><span class="n">tags</span><span class="p">[</span><span class="n">i</span><span class="p">],</span><span class="n">tags</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="nb">len</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span><span class="mi">2</span><span class="p">)]</span>
+<span class="n">tag_bigrams</span> <span class="o">=</span> <span class="n">bigram_counts</span><span class="p">(</span><span class="n">o</span><span class="p">)</span>
+
+
+<span class="c1"># For transition probabilities, starting and ending tags are added.
+</span>
+<span class="k">def</span> <span class="nf">starting_counts</span><span class="p">(</span><span class="n">sequences</span><span class="p">):</span>
+    
+    <span class="n">d</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">d</span>
+
+<span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">tag</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">stream</span><span class="p">())]</span>
+<span class="n">starts_tag</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">.</span><span class="n">Y</span><span class="p">]</span>
+<span class="n">tag_starts</span> <span class="o">=</span> <span class="n">starting_counts</span><span class="p">(</span><span class="n">starts_tag</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">ending_counts</span><span class="p">(</span><span class="n">sequences</span><span class="p">):</span>
+    
+    <span class="n">d</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">sequences</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">d</span>
+
+<span class="n">end_tag</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">.</span><span class="n">Y</span><span class="p">]</span>
+<span class="n">tag_ends</span> <span class="o">=</span> <span class="n">ending_counts</span><span class="p">(</span><span class="n">end_tag</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">pair_counts</span><span class="p">(</span><span class="n">tags</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">word</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tags</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
+        <span class="n">d</span><span class="p">[</span><span class="n">tag</span><span class="p">][</span><span class="n">word</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        
+    <span class="k">return</span> <span class="n">d</span>
+<span class="c1"># 
+</span>
+<span class="n">basic_model</span> <span class="o">=</span> <span class="n">HiddenMarkovModel</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">"base-hmm-tagger"</span><span class="p">)</span>
+
+<span class="n">tags</span> <span class="o">=</span> <span class="p">[</span><span class="n">tag</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">stream</span><span class="p">())]</span>
+<span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="n">word</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">tag</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">stream</span><span class="p">())]</span>
+
+<span class="n">tags_count</span><span class="o">=</span><span class="n">unigram_counts</span><span class="p">(</span><span class="n">tags</span><span class="p">)</span>
+<span class="n">tag_words_count</span><span class="o">=</span><span class="n">pair_counts</span><span class="p">(</span><span class="n">tags</span><span class="p">,</span><span class="n">words</span><span class="p">)</span>
+
+<span class="n">starting_tag_list</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">.</span><span class="n">Y</span><span class="p">]</span>
+<span class="n">ending_tag_list</span><span class="o">=</span><span class="p">[</span><span class="n">i</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">data</span><span class="p">.</span><span class="n">Y</span><span class="p">]</span>
+
+<span class="n">starting_tag_count</span><span class="o">=</span><span class="n">starting_counts</span><span class="p">(</span><span class="n">starting_tag_list</span><span class="p">)</span><span class="c1">#the number of times a tag occured at the start
+</span><span class="n">ending_tag_count</span><span class="o">=</span><span class="n">ending_counts</span><span class="p">(</span><span class="n">ending_tag_list</span><span class="p">)</span>      <span class="c1">#the number of times a tag occured at the end
+</span>
+
+
+<span class="n">to_pass_states</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">tag</span><span class="p">,</span> <span class="n">words_dict</span> <span class="ow">in</span> <span class="n">tag_words_count</span><span class="p">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">words_dict</span><span class="p">.</span><span class="n">values</span><span class="p">()))</span>
+    <span class="n">distribution</span> <span class="o">=</span> <span class="p">{</span><span class="n">word</span><span class="p">:</span> <span class="n">count</span><span class="o">/</span><span class="n">total</span> <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">words_dict</span><span class="p">.</span><span class="n">items</span><span class="p">()}</span>
+    <span class="n">tag_emissions</span> <span class="o">=</span> <span class="n">DiscreteDistribution</span><span class="p">(</span><span class="n">distribution</span><span class="p">)</span>
+    <span class="n">tag_state</span> <span class="o">=</span> <span class="n">State</span><span class="p">(</span><span class="n">tag_emissions</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">tag</span><span class="p">)</span>
+    <span class="n">to_pass_states</span><span class="p">.</span><span class="n">append</span><span class="p">(</span><span class="n">tag_state</span><span class="p">)</span>
+
+
+<span class="n">basic_model</span><span class="p">.</span><span class="n">add_states</span><span class="p">()</span>    
+    
+<span class="c1"># Calculate starting tag probabity and add it to transition prob matrix of the model.
+</span><span class="n">start_prob</span><span class="o">=</span><span class="p">{}</span>
+
+<span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
+    <span class="n">start_prob</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">=</span><span class="n">starting_tag_count</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">/</span><span class="n">tags_count</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">tag_state</span> <span class="ow">in</span> <span class="n">to_pass_states</span> <span class="p">:</span>
+    <span class="n">basic_model</span><span class="p">.</span><span class="n">add_transition</span><span class="p">(</span><span class="n">basic_model</span><span class="p">.</span><span class="n">start</span><span class="p">,</span><span class="n">tag_state</span><span class="p">,</span><span class="n">start_prob</span><span class="p">[</span><span class="n">tag_state</span><span class="p">.</span><span class="n">name</span><span class="p">])</span>    
+
+
+<span class="c1"># Calculate ending tag probabity and add it to transition prob matrix of the model.
+</span><span class="n">end_prob</span><span class="o">=</span><span class="p">{}</span>
+
+<span class="k">for</span> <span class="n">tag</span> <span class="ow">in</span> <span class="n">tags</span><span class="p">:</span>
+    <span class="n">end_prob</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">=</span><span class="n">ending_tag_count</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span><span class="o">/</span><span class="n">tags_count</span><span class="p">[</span><span class="n">tag</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">tag_state</span> <span class="ow">in</span> <span class="n">to_pass_states</span> <span class="p">:</span>
+    <span class="n">basic_model</span><span class="p">.</span><span class="n">add_transition</span><span class="p">(</span><span class="n">tag_state</span><span class="p">,</span><span class="n">basic_model</span><span class="p">.</span><span class="n">end</span><span class="p">,</span><span class="n">end_prob</span><span class="p">[</span><span class="n">tag_state</span><span class="p">.</span><span class="n">name</span><span class="p">])</span>
+    
+
+<span class="c1"># Calculate bigram probability and add it to transition prob matrix of the model.
+</span><span class="n">transition_prob_pair</span><span class="o">=</span><span class="p">{}</span>
+
+<span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">tag_bigrams</span><span class="p">.</span><span class="n">keys</span><span class="p">():</span>
+    <span class="n">transition_prob_pair</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">=</span><span class="n">tag_bigrams</span><span class="p">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">/</span><span class="n">tags_count</span><span class="p">[</span><span class="n">key</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+<span class="k">for</span> <span class="n">tag_state</span> <span class="ow">in</span> <span class="n">to_pass_states</span> <span class="p">:</span>
+    <span class="k">for</span> <span class="n">next_tag_state</span> <span class="ow">in</span> <span class="n">to_pass_states</span> <span class="p">:</span>
+        <span class="n">basic_model</span><span class="p">.</span><span class="n">add_transition</span><span class="p">(</span><span class="n">tag_state</span><span class="p">,</span><span class="n">next_tag_state</span><span class="p">,</span><span class="n">transition_prob_pair</span><span class="p">[(</span><span class="n">tag_state</span><span class="p">.</span><span class="n">name</span><span class="p">,</span><span class="n">next_tag_state</span><span class="p">.</span><span class="n">name</span><span class="p">)])</span>
+
+<span class="c1">#  Generate the model.
+</span><span class="n">basic_model</span><span class="p">.</span><span class="n">bake</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#Model Accuracy Evaluation
+</span>
+<span class="c1"># For any unknown word in dictionary of Training set, replace it with 'nan'
+</span><span class="k">def</span> <span class="nf">replace_unknown</span><span class="p">(</span><span class="n">sequence</span><span class="p">):</span>
+    
+    <span class="k">return</span> <span class="p">[</span><span class="n">w</span> <span class="k">if</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">data</span><span class="p">.</span><span class="n">training_set</span><span class="p">.</span><span class="n">vocab</span> <span class="k">else</span> <span class="s">'nan'</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">sequence</span><span class="p">]</span>
+
+
+<span class="c1"># Using viterbi algorithm to decode the model.
+</span><span class="k">def</span> <span class="nf">simplify_decoding</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+    
+    <span class="n">_</span><span class="p">,</span> <span class="n">state_path</span> <span class="o">=</span> <span class="n">model</span><span class="p">.</span><span class="n">viterbi</span><span class="p">(</span><span class="n">replace_unknown</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">state</span><span class="p">[</span><span class="mi">1</span><span class="p">].</span><span class="n">name</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">state_path</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+
+<span class="k">def</span> <span class="nf">accuracy</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">model</span><span class="p">):</span>
+    
+    <span class="n">correct</span> <span class="o">=</span> <span class="n">total_predictions</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">observations</span><span class="p">,</span> <span class="n">actual_tags</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+        
+        <span class="c1"># The model.viterbi call in simplify_decoding will return None if the HMM
+</span>        <span class="c1"># raises an error (for example, if a test sentence contains a word that
+</span>        <span class="c1"># is out of vocabulary for the training set). Any exception counts the
+</span>        <span class="c1"># full sentence as an error (which makes this a conservative estimate).
+</span>        <span class="k">try</span><span class="p">:</span>
+            <span class="n">most_likely_tags</span> <span class="o">=</span> <span class="n">simplify_decoding</span><span class="p">(</span><span class="n">observations</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
+            <span class="n">correct</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">p</span> <span class="o">==</span> <span class="n">t</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">most_likely_tags</span><span class="p">,</span> <span class="n">actual_tags</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="n">total_predictions</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">correct</span> <span class="o">/</span> <span class="n">total_predictions</span>
+
+
+<span class="n">hmm_training_acc</span> <span class="o">=</span> <span class="n">accuracy</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">training_set</span><span class="p">.</span><span class="n">X</span><span class="p">,</span> <span class="n">data</span><span class="p">.</span><span class="n">training_set</span><span class="p">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">basic_model</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"training accuracy basic hmm model: {:.2f}%"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">hmm_training_acc</span><span class="p">))</span>
+
+<span class="n">hmm_testing_acc</span> <span class="o">=</span> <span class="n">accuracy</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">testing_set</span><span class="p">.</span><span class="n">X</span><span class="p">,</span> <span class="n">data</span><span class="p">.</span><span class="n">testing_set</span><span class="p">.</span><span class="n">Y</span><span class="p">,</span> <span class="n">basic_model</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"testing accuracy basic hmm model: {:.2f}%"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">hmm_testing_acc</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>training accuracy basic hmm model: 97.49%
+testing accuracy basic hmm model: 96.09%
+</code></pre></div></div>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">#Adds code blocks wherever you feel necessary
+</span><span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="p">.</span><span class="n">testing_set</span><span class="p">.</span><span class="n">keys</span><span class="p">[:</span><span class="mi">2</span><span class="p">]:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Sentence Key: {}</span><span class="si">\</span><span class="se">n</span><span class="s">"</span><span class="p">.</span><span class="nb">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Predicted labels:</span><span class="si">\</span><span class="se">n</span><span class="s">-----------------"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">simplify_decoding</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">sentences</span><span class="p">[</span><span class="n">key</span><span class="p">].</span><span class="n">words</span><span class="p">,</span> <span class="n">basic_model</span><span class="p">))</span>
+    <span class="k">print</span><span class="p">()</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Actual labels:</span><span class="si">\</span><span class="se">n</span><span class="s">--------------"</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">data</span><span class="p">.</span><span class="n">sentences</span><span class="p">[</span><span class="n">key</span><span class="p">].</span><span class="n">tags</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"</span><span class="si">\</span><span class="se">n</span><span class="s">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Sentence Key: b100-28144
+
+Predicted labels:
+-----------------
+['CONJ', 'NOUN', 'NUM', '.', 'NOUN', 'NUM', '.', 'NOUN', 'NUM', '.', 'CONJ', 'NOUN', 'NUM', '.', '.', 'NOUN', '.', '.']
+
+Actual labels:
+--------------
+('CONJ', 'NOUN', 'NUM', '.', 'NOUN', 'NUM', '.', 'NOUN', 'NUM', '.', 'CONJ', 'NOUN', 'NUM', '.', '.', 'NOUN', '.', '.')
+
+
+Sentence Key: b100-23146
+
+Predicted labels:
+-----------------
+['PRON', 'VERB', 'DET', 'NOUN', 'ADP', 'ADJ', 'ADJ', 'NOUN', 'VERB', 'VERB', '.', 'ADP', 'VERB', 'DET', 'NOUN', 'ADP', 'NOUN', 'ADP', 'DET', 'NOUN', '.']
+
+Actual labels:
+--------------
+('PRON', 'VERB', 'DET', 'NOUN', 'ADP', 'ADJ', 'ADJ', 'NOUN', 'VERB', 'VERB', '.', 'ADP', 'VERB', 'DET', 'NOUN', 'ADP', 'NOUN', 'ADP', 'DET', 'NOUN', '.')
+</code></pre></div></div>
+
+<h3 id="happy-coding">Happy Coding!</h3>
+:ET

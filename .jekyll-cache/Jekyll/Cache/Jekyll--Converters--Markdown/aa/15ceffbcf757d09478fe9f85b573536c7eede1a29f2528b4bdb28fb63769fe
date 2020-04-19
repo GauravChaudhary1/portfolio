@@ -1,0 +1,132 @@
+I"�,<h3>Launchpad Plugins are used to enhance the Fiori Launchpad to extend the user experience.</h3>
+
+<p> Before begining to demonstrate how to create Fiori Launchpad Plugin, it is better to understand what is rendering. If you have already worked on the Custom Controls then you must already be aware of this concept. Rendering, in general, refers to getting or fetching of the data. In UI5 or Javascript, rendering refers to fetching or getting the DOM elements, which Javascript then uses for Manipulation. </p>
+
+<p><br /><br /></p>
+
+<p> Now lets see, how can we create a Fiori Plugin and how does it enhance the user experience. </p>
+<p><br /><br /></p>
+<h3> Step1: Check if Extensibility extension is activated. </h3>
+<p>Extension - “SAP Fiori Launchpad Extensibility” needs to be enabled in order to create a launchpad plugin.
+<img src="http://localhost:4000/images/Fiori/20200107/1.jpg" />
+<br /><br /></p>
+<h3> Step2: Start Creating a new Project. Choose New-&gt;Project from Template.</h3>
+<p><img src="http://localhost:4000/images/Fiori/20200107/2.jpg" /></p>
+
+<p><br /><br /></p>
+<h3> Step3: Give a project name.</h3>
+<p><img src="http://localhost:4000/images/Fiori/20200107/3.jpg" /></p>
+
+<p><br /><br /></p>
+<h3> Step4: Give a plugin name and Title.</h3>
+<p>Select any of the check to get the sample code of the Plugin that needs to installed. In this case, I am going with Buttons in Me Area.
+<img src="http://localhost:4000/images/Fiori/20200107/4.jpg" /></p>
+
+<p><br /> <br /></p>
+
+<p>After creation, your project structure should look like this.
+<img src="http://localhost:4000/images/Fiori/20200107/5.jpg" /></p>
+
+<p><b> All the Source Code is automatically generated</b></p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">init</span><span class="p">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+			<span class="kd">var</span> <span class="nx">rendererPromise</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_getRenderer</span><span class="p">();</span>			
+			<span class="nx">rendererPromise</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">oRenderer</span><span class="p">)</span> <span class="p">{</span>
+				<span class="nx">oRenderer</span><span class="p">.</span><span class="nx">addActionButton</span><span class="p">(</span><span class="dl">"</span><span class="s2">sap.m.Button</span><span class="dl">"</span><span class="p">,</span> <span class="p">{</span>
+					<span class="na">id</span><span class="p">:</span> <span class="dl">"</span><span class="s2">myHomeButton</span><span class="dl">"</span><span class="p">,</span>
+					<span class="na">icon</span><span class="p">:</span> <span class="dl">"</span><span class="s2">sap-icon://sys-help-2</span><span class="dl">"</span><span class="p">,</span>
+					<span class="na">text</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Help for FLP page</span><span class="dl">"</span><span class="p">,</span>
+					<span class="na">press</span><span class="p">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+						<span class="nx">MessageToast</span><span class="p">.</span><span class="nx">show</span><span class="p">(</span><span class="dl">"</span><span class="s2">You pressed the button that opens a help page.</span><span class="dl">"</span><span class="p">);</span>
+					<span class="p">}</span>
+				<span class="p">},</span> <span class="kc">true</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="p">[</span><span class="nx">sap</span><span class="p">.</span><span class="nx">ushell</span><span class="p">.</span><span class="nx">renderers</span><span class="p">.</span><span class="nx">fiori2</span><span class="p">.</span><span class="nx">RendererExtensions</span><span class="p">.</span><span class="nx">LaunchpadState</span><span class="p">.</span><span class="nx">Home</span><span class="p">,</span> <span class="nx">sap</span><span class="p">.</span><span class="nx">ushell</span><span class="p">.</span><span class="nx">renderers</span><span class="p">.</span><span class="nx">fiori2</span><span class="p">.</span><span class="nx">RendererExtensions</span><span class="p">.</span><span class="nx">LaunchpadState</span><span class="p">.</span><span class="nx">App</span><span class="p">]);</span>
+								
+			<span class="p">});</span>
+
+            <span class="cm">/* Documentation for function addAction Button or for every renderer plugin add
+                addActionButton( "type_of_button", { button properties} , visible? , currentstate?, [States])
+
+                visible --&gt; if control is visible
+                currentstate --&gt; if true, will only be visible in Launcpad and if false, then states are considered
+                states --&gt; "Home" (Launchpad Home Page), "App" (Application Home Page)
+            */</span>
+		<span class="p">},</span>
+
+<span class="na">_getRenderer</span><span class="p">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+			<span class="kd">var</span> <span class="nx">that</span> <span class="o">=</span> <span class="k">this</span><span class="p">,</span>
+				<span class="nx">oDeferred</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">jQuery</span><span class="p">.</span><span class="nx">Deferred</span><span class="p">(),</span>
+				<span class="nx">oRenderer</span><span class="p">;</span>
+
+			<span class="nx">that</span><span class="p">.</span><span class="nx">_oShellContainer</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">.</span><span class="nx">sap</span><span class="p">.</span><span class="nx">getObject</span><span class="p">(</span><span class="dl">"</span><span class="s2">sap.ushell.Container</span><span class="dl">"</span><span class="p">);</span>
+			<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="nx">that</span><span class="p">.</span><span class="nx">_oShellContainer</span><span class="p">)</span> <span class="p">{</span>
+				<span class="nx">oDeferred</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span>
+					<span class="dl">"</span><span class="s2">Illegal state: shell container not available; this component must be executed in a unified shell runtime context.</span><span class="dl">"</span><span class="p">);</span>
+			<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+				<span class="nx">oRenderer</span> <span class="o">=</span> <span class="nx">that</span><span class="p">.</span><span class="nx">_oShellContainer</span><span class="p">.</span><span class="nx">getRenderer</span><span class="p">();</span>
+				<span class="k">if</span> <span class="p">(</span><span class="nx">oRenderer</span><span class="p">)</span> <span class="p">{</span>
+					<span class="nx">oDeferred</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">oRenderer</span><span class="p">);</span>
+				<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+					<span class="c1">// renderer not initialized yet, listen to rendererCreated event</span>
+					<span class="nx">that</span><span class="p">.</span><span class="nx">_onRendererCreated</span> <span class="o">=</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">oEvent</span><span class="p">)</span> <span class="p">{</span>
+						<span class="nx">oRenderer</span> <span class="o">=</span> <span class="nx">oEvent</span><span class="p">.</span><span class="nx">getParameter</span><span class="p">(</span><span class="dl">"</span><span class="s2">renderer</span><span class="dl">"</span><span class="p">);</span>
+						<span class="k">if</span> <span class="p">(</span><span class="nx">oRenderer</span><span class="p">)</span> <span class="p">{</span>
+							<span class="nx">oDeferred</span><span class="p">.</span><span class="nx">resolve</span><span class="p">(</span><span class="nx">oRenderer</span><span class="p">);</span>
+						<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+							<span class="nx">oDeferred</span><span class="p">.</span><span class="nx">reject</span><span class="p">(</span><span class="dl">"</span><span class="s2">Illegal state: shell renderer not available after recieving 'rendererLoaded' event.</span><span class="dl">"</span><span class="p">);</span>
+						<span class="p">}</span>
+					<span class="p">};</span>
+					<span class="nx">that</span><span class="p">.</span><span class="nx">_oShellContainer</span><span class="p">.</span><span class="nx">attachRendererCreatedEvent</span><span class="p">(</span><span class="nx">that</span><span class="p">.</span><span class="nx">_onRendererCreated</span><span class="p">);</span>
+				<span class="p">}</span>
+			<span class="p">}</span>
+			<span class="k">return</span> <span class="nx">oDeferred</span><span class="p">.</span><span class="nx">promise</span><span class="p">();</span>
+		<span class="p">}</span>
+
+</code></pre></div></div>
+<p><br /><br /></p>
+<h3> Step5: Run the project.</h3>
+<p><img src="http://localhost:4000/images/Fiori/20200107/6.jpg" />
+<br /><br /></p>
+<h3> Step6: Select Run as SAP Fiori Launchpad Sandbox</h3>
+<p><img src="http://localhost:4000/images/Fiori/20200107/7.jpg" />
+<br /><br /></p>
+<h3> Step7: In general tab, select file name "fioriSandboxConfig.json".</h3>
+<p><img src="http://localhost:4000/images/Fiori/20200107/8.jpg" />
+<br /><br /></p>
+<h3> Step8: In URL Components, enter URL hash fragment.</h3>
+<p><img src="http://localhost:4000/images/Fiori/20200107/9.jpg" />
+<br /><br /></p>
+
+<h3> Step9: Save and Run the application.</h3>
+<p><img src="http://localhost:4000/images/Fiori/20200107/10.jpg" /></p>
+
+<p><br /><br /></p>
+<h3> Now, lets talk about the deployment.</h3>
+<p>Once the application is deployed, plugin needs to be activated.</p>
+<p> To activate, you need to register this app and provide the semantic object.</p>
+<p><br /><br /></p>
+<h3> Step10: Deploy the application of SAP Cloud Platform.</h3>
+<p><img src="http://localhost:4000/images/Fiori/20200107/11.jpg" />
+<img src="http://localhost:4000/images/Fiori/20200107/12.jpg" />
+<img src="http://localhost:4000/images/Fiori/20200107/13.jpg" />
+<br /><br /></p>
+<h3 style="color: red;"> Do not Register on Fiori Launchpad Yet as this is not an application.</h3>
+<p><br /><br /></p>
+<h3> Step11: Logon to the Cloud Platform and Enter to the Site Admin via Portal Service.</h3>
+<h3> Navigate to Content Management-&gt; Apps. And Add the application.</h3>
+<p><img src="http://localhost:4000/images/Fiori/20200107/14.jpg" />
+<br /><br /></p>
+<h3> Step12: Select the Deployed app in App Resource and App Type as Shell Plugin.</h3>
+<p><img src="http://localhost:4000/images/Fiori/20200107/15.jpg" />
+<br /><br /></p>
+<h3> Step13: Assign the catalog to this app.</h3>
+<p><img src="http://localhost:4000/images/Fiori/20200107/16.jpg" />
+<br /><br /></p>
+<h3> Step14: Now run the Website.</h3>
+<p><img src="http://localhost:4000/images/Fiori/20200107/17.jpg" /></p>
+
+<p><br /><br />
+<b><i><em>Phew</em></i></b> This has been a long article but a good learning, right?</p>
+
+<p>Happy Learning!</p>
+
+:ET

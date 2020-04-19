@@ -1,0 +1,430 @@
+I"t»<p>
+Reporting in ABAP is considered as major requirement as it caters the need of the business enduser. There are a lot of functions that can be used while displaying the data in ALV. For the beginners it seems quite difficult to know them all in place.
+</p>
+
+<p> Below program executes such functionalities of ALV:</p>
+<p><br /></p>
+
+<div class="language-abap highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="c1">" Type Declaration</span>
+<span class="k">TABLES</span> <span class="p">:</span> <span class="n">vbak</span><span class="p">.</span>
+<span class="k">TYPE</span><span class="o">-</span><span class="n">POOLS</span> <span class="p">:</span> <span class="n">abap</span><span class="p">,</span><span class="n">rsanm</span><span class="p">.</span>
+
+<span class="k">TYPES</span> <span class="p">:</span> <span class="k">BEGIN</span> <span class="k">OF</span> <span class="n">t_vbak</span><span class="p">.</span>
+<span class="k">INCLUDE</span> <span class="k">TYPE</span> <span class="n">vbak</span><span class="p">.</span>
+<span class="k">TYPES</span> <span class="p">:</span> <span class="n">t_color</span> <span class="k">TYPE</span> <span class="n">lvc_t_scol</span><span class="p">,</span>
+        <span class="k">END</span> <span class="k">OF</span> <span class="n">t_vbak</span><span class="p">.</span>
+
+<span class="k">DATA</span> <span class="p">:</span> <span class="n">lt_vbak</span> <span class="k">TYPE</span> <span class="k">STANDARD</span> <span class="k">TABLE</span> <span class="k">OF</span> <span class="n">t_vbak</span><span class="p">,</span>
+       <span class="n">ls_vbak</span> <span class="k">TYPE</span> <span class="n">t_vbak</span><span class="p">.</span>
+
+<span class="k">DATA</span> <span class="p">:</span> <span class="n">lt_vbap</span> <span class="k">TYPE</span> <span class="k">STANDARD</span> <span class="k">TABLE</span> <span class="k">OF</span> <span class="n">vbap</span><span class="p">.</span>
+
+<span class="k">FIELD</span><span class="o">-</span><span class="n">SYMBOLS</span> <span class="p">:</span> <span class="o">&lt;</span><span class="n">lfs_vbak</span><span class="o">&gt;</span> <span class="k">TYPE</span> <span class="n">t_vbak</span><span class="p">.</span>
+
+<span class="k">DATA</span> <span class="p">:</span> <span class="n">l_rec</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>  <span class="k">TYPE</span> <span class="kt">n</span><span class="p">.</span>
+
+<span class="cm">** Declaration for ALV Grid **</span>
+<span class="k">DATA</span> <span class="p">:</span> <span class="n">gr_table</span> <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_table</span><span class="p">.</span>
+
+<span class="cm">** Declarations for ALV Functions</span>
+<span class="k">DATA</span> <span class="p">:</span> <span class="n">gr_functions</span> <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_functions_list</span><span class="p">.</span>
+
+<span class="cm">** declaration for ALV Columns</span>
+<span class="k">DATA</span> <span class="p">:</span> <span class="n">gr_columns</span> <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_columns_table</span><span class="p">,</span>
+       <span class="n">gr_column</span>  <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_column_table</span><span class="p">,</span>
+       <span class="n">lt_column_ref</span> <span class="k">TYPE</span> <span class="n">salv_t_column_ref</span><span class="p">,</span>
+       <span class="n">ls_column_ref</span> <span class="k">TYPE</span> <span class="n">salv_s_column_ref</span><span class="p">.</span>
+
+<span class="cm">** declaration for Layout Settings</span>
+<span class="k">DATA</span> <span class="p">:</span> <span class="n">gr_layout</span> <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_layout</span><span class="p">,</span>
+       <span class="n">gr_layout_key</span> <span class="k">TYPE</span> <span class="n">salv_s_layout_key</span><span class="p">,</span>
+       <span class="n">ls_layout</span> <span class="k">TYPE</span> <span class="n">salv_s_layout</span><span class="p">,</span>
+       <span class="n">lt_layout_info</span> <span class="k">TYPE</span> <span class="n">salv_t_layout_info</span><span class="p">.</span>
+
+<span class="cm">** Declaration for Global Display Settings</span>
+<span class="k">DATA</span> <span class="p">:</span> <span class="n">gr_display</span> <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_display_settings</span><span class="p">,</span>
+       <span class="n">lv_title</span>   <span class="k">TYPE</span> <span class="n">lvc_title</span><span class="p">.</span>
+
+<span class="cm">** Declaration for Aggregate Function Settings</span>
+<span class="k">DATA</span> <span class="p">:</span> <span class="n">gr_aggr</span>    <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_aggregations</span><span class="p">.</span>
+
+<span class="cm">** Declaration for Sort Function Settings</span>
+<span class="k">DATA</span> <span class="p">:</span> <span class="n">gr_sort</span>    <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_sorts</span><span class="p">.</span>
+
+<span class="cm">** Declaration for Table Selection settings</span>
+<span class="k">DATA</span> <span class="p">:</span> <span class="n">gr_select</span>  <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_selections</span><span class="p">.</span>
+
+<span class="cm">** Declaration for Top of List settings</span>
+<span class="k">DATA</span> <span class="p">:</span> <span class="n">gr_content</span> <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_form_element</span><span class="p">.</span>
+
+<span class="cm">** Class for handling Events</span>
+<span class="k">CLASS</span> <span class="p">:</span> <span class="n">lcl_handle_events</span> <span class="k">DEFINITION</span> <span class="k">DEFERRED</span><span class="p">.</span>
+<span class="k">DATA</span>  <span class="p">:</span> <span class="n">gr_events</span> <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">lcl_handle_events</span><span class="p">,</span>
+        <span class="n">lr_events</span> <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_events_table</span><span class="p">.</span>
+
+<span class="cm">** Coloring of Date columns **</span>
+<span class="k">DATA</span> <span class="p">:</span> <span class="n">lt_colo</span> <span class="k">TYPE</span> <span class="k">STANDARD</span> <span class="k">TABLE</span> <span class="k">OF</span> <span class="n">lvc_s_colo</span><span class="p">,</span>
+       <span class="n">ls_colo</span> <span class="k">TYPE</span> <span class="n">lvc_s_colo</span><span class="p">.</span>
+
+<span class="cm">** Color Structure of columns **</span>
+<span class="k">DATA</span> <span class="p">:</span> <span class="n">lt_color</span> <span class="k">TYPE</span> <span class="n">lvc_t_scol</span><span class="p">,</span>
+       <span class="n">ls_color</span> <span class="k">TYPE</span> <span class="n">lvc_s_scol</span><span class="p">.</span>
+<span class="cm">*----------------------------------------------------------------------*</span>
+<span class="cm">*       CLASS lcl_handle_events DEFINITION</span>
+<span class="cm">*----------------------------------------------------------------------*</span>
+<span class="k">CLASS</span> <span class="n">lcl_handle_events</span> <span class="k">DEFINITION</span><span class="p">.</span>
+  <span class="k">PUBLIC</span> <span class="k">SECTION</span><span class="p">.</span>
+    <span class="k">METHODS</span> <span class="p">:</span> <span class="n">on_double_click</span> <span class="k">FOR</span> <span class="k">EVENT</span> <span class="n">double_click</span> <span class="k">OF</span> <span class="n">cl_salv_events_table</span>
+      <span class="k">IMPORTING</span> <span class="n">row</span> <span class="k">column</span><span class="p">.</span>
+    <span class="k">METHODS</span> <span class="p">:</span> <span class="n">on_link_click</span> <span class="k">FOR</span> <span class="k">EVENT</span> <span class="n">link_click</span> <span class="k">OF</span> <span class="n">cl_salv_events_table</span>
+      <span class="k">IMPORTING</span> <span class="n">row</span> <span class="k">column</span><span class="p">.</span>
+<span class="k">ENDCLASS</span><span class="p">.</span>                    <span class="c1">"lcl_handle_events DEFINITION</span>
+<span class="cm">*----------------------------------------------------------------------*</span>
+<span class="cm">*       CLASS lcl_handle_events IMPLEMENTATION</span>
+<span class="cm">*----------------------------------------------------------------------*</span>
+<span class="k">CLASS</span> <span class="n">lcl_handle_events</span> <span class="k">IMPLEMENTATION</span><span class="p">.</span>
+  <span class="k">METHOD</span> <span class="n">on_double_click</span><span class="p">.</span>
+    <span class="k">PERFORM</span> <span class="n">get_ord_info</span> <span class="k">USING</span> <span class="n">row</span> <span class="k">column</span><span class="p">.</span>
+  <span class="k">ENDMETHOD</span><span class="p">.</span>                    <span class="c1">"on_double_click</span>
+  <span class="k">METHOD</span> <span class="n">on_link_click</span><span class="p">.</span>
+    <span class="k">PERFORM</span> <span class="n">get_ord_info</span> <span class="k">USING</span> <span class="n">row</span> <span class="k">column</span><span class="p">.</span>
+  <span class="k">ENDMETHOD</span><span class="p">.</span>                    <span class="c1">"on_link_click</span>
+<span class="k">ENDCLASS</span><span class="p">.</span>                    <span class="c1">"lcl_handle_events IMPLEMENTATION</span>
+<span class="k">SELECTION</span><span class="o">-</span><span class="k">SCREEN</span> <span class="k">BEGIN</span> <span class="k">OF</span> <span class="k">BLOCK</span> <span class="n">b1</span><span class="p">.</span>
+<span class="k">SELECT</span><span class="o">-</span><span class="k">OPTIONS</span> <span class="p">:</span> <span class="n">p_erdat</span> <span class="k">FOR</span> <span class="n">vbak</span><span class="o">-</span><span class="n">erdat</span><span class="p">.</span>
+<span class="k">PARAMETER</span> <span class="p">:</span> <span class="n">p_var</span> <span class="k">TYPE</span> <span class="n">slis_vari</span><span class="p">.</span>
+<span class="k">SELECTION</span><span class="o">-</span><span class="k">SCREEN</span> <span class="k">END</span> <span class="k">OF</span> <span class="k">BLOCK</span> <span class="n">b1</span><span class="p">.</span>
+
+<span class="k">AT</span> <span class="k">SELECTION</span><span class="o">-</span><span class="k">SCREEN</span> <span class="k">ON</span> <span class="k">VALUE</span><span class="o">-</span><span class="k">REQUEST</span> <span class="k">FOR</span> <span class="n">p_var</span><span class="p">.</span>
+  <span class="k">CLEAR</span> <span class="p">:</span> <span class="n">ls_layout</span><span class="p">.</span>
+  <span class="k">TRY</span><span class="p">.</span>
+      <span class="k">CALL</span> <span class="k">METHOD</span> <span class="n">cl_salv_table</span><span class="o">=&gt;</span><span class="n">factory</span>
+        <span class="k">EXPORTING</span>
+          <span class="n">list_display</span> <span class="o">=</span> <span class="n">if_salv_c_bool_sap</span><span class="o">=&gt;</span><span class="n">false</span>
+        <span class="k">IMPORTING</span>
+          <span class="n">r_salv_table</span> <span class="o">=</span> <span class="n">gr_table</span>
+        <span class="k">CHANGING</span>
+          <span class="n">t_table</span>      <span class="o">=</span> <span class="n">lt_vbak</span><span class="p">.</span>
+    <span class="k">CATCH</span> <span class="n">cx_salv_msg</span> <span class="p">.</span>
+  <span class="k">ENDTRY</span><span class="p">.</span>
+
+  <span class="k">IF</span> <span class="n">gr_table</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">INITIAL</span><span class="p">.</span>
+    <span class="k">MOVE</span> <span class="n">sy</span><span class="o">-</span><span class="n">repid</span> <span class="k">TO</span> <span class="n">gr_layout_key</span><span class="o">-</span><span class="k">report</span><span class="p">.</span>     <span class="c1">"Set Layout Key as Report ID"</span>
+    <span class="n">gr_layout</span> <span class="o">=</span> <span class="n">gr_table</span><span class="o">-&gt;</span><span class="n">get_layout</span><span class="p">(</span> <span class="p">).</span>       <span class="c1">"Get Layout of the Table"</span>
+    <span class="n">gr_layout</span><span class="o">-&gt;</span><span class="n">set_key</span><span class="p">(</span> <span class="n">gr_layout_key</span> <span class="p">).</span>       <span class="c1">"Set Layout key to Layout"</span>
+    <span class="n">lt_layout_info</span> <span class="o">=</span> <span class="n">gr_layout</span><span class="o">-&gt;</span><span class="n">get_layouts</span><span class="p">(</span> <span class="p">).</span><span class="c1">"Get the Layouts of report"</span>
+    <span class="k">IF</span> <span class="n">lt_layout_info</span><span class="p">[]</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">INITIAL</span><span class="p">.</span>
+      <span class="n">ls_layout</span> <span class="o">=</span> <span class="n">gr_layout</span><span class="o">-&gt;</span><span class="n">f4_layouts</span><span class="p">(</span> <span class="p">).</span>    <span class="c1">"Activate F4 Help for Layouts"</span>
+      <span class="k">IF</span> <span class="n">ls_layout</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">INITIAL</span><span class="p">.</span>
+        <span class="k">MOVE</span> <span class="n">ls_layout</span><span class="o">-</span><span class="k">layout</span> <span class="k">TO</span> <span class="n">p_var</span><span class="p">.</span>
+      <span class="k">ENDIF</span><span class="p">.</span>
+    <span class="k">ENDIF</span><span class="p">.</span>
+  <span class="k">ENDIF</span><span class="p">.</span>
+
+<span class="n">START</span><span class="o">-</span><span class="k">OF</span><span class="o">-</span><span class="k">SELECTION</span><span class="p">.</span>
+  <span class="k">REFRESH</span> <span class="p">:</span> <span class="n">lt_vbak</span><span class="p">.</span>
+  <span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">vbak</span>
+    <span class="k">INTO</span> <span class="k">CORRESPONDING</span> <span class="k">FIELDS</span> <span class="k">OF</span> <span class="k">TABLE</span> <span class="n">lt_vbak</span>
+    <span class="k">WHERE</span> <span class="n">erdat</span> <span class="k">IN</span> <span class="n">p_erdat</span><span class="p">.</span>
+
+
+  <span class="k">IF</span> <span class="n">sy</span><span class="o">-</span><span class="n">subrc</span> <span class="k">EQ</span> <span class="mi">0</span><span class="p">.</span>
+    <span class="k">DESCRIBE</span> <span class="k">TABLE</span> <span class="n">lt_vbak</span> <span class="k">LINES</span> <span class="n">l_rec</span><span class="p">.</span>
+    <span class="k">PERFORM</span> <span class="n">set_color</span><span class="p">.</span>
+    <span class="k">PERFORM</span> <span class="n">alv_grid_display</span><span class="p">.</span>
+  <span class="k">ENDIF</span><span class="p">.</span>
+
+<span class="cm">*&amp;---------------------------------------------------------------------*</span>
+<span class="cm">*&amp;      Form  alv_grid_display</span>
+<span class="cm">*&amp;---------------------------------------------------------------------*</span>
+<span class="cm">*       text</span>
+<span class="cm">*----------------------------------------------------------------------*</span>
+<span class="k">FORM</span> <span class="n">alv_grid_display</span><span class="p">.</span>
+  <span class="k">CLEAR</span> <span class="p">:</span> <span class="n">gr_table</span><span class="p">.</span>
+  <span class="k">TRY</span><span class="p">.</span>
+      <span class="k">CALL</span> <span class="k">METHOD</span> <span class="n">cl_salv_table</span><span class="o">=&gt;</span><span class="n">factory</span>
+        <span class="k">EXPORTING</span>
+          <span class="n">list_display</span> <span class="o">=</span> <span class="n">if_salv_c_bool_sap</span><span class="o">=&gt;</span><span class="n">false</span>
+        <span class="k">IMPORTING</span>
+          <span class="n">r_salv_table</span> <span class="o">=</span> <span class="n">gr_table</span>
+        <span class="k">CHANGING</span>
+          <span class="n">t_table</span>      <span class="o">=</span> <span class="n">lt_vbak</span><span class="p">.</span>
+    <span class="k">CATCH</span> <span class="n">cx_salv_msg</span> <span class="p">.</span>
+  <span class="k">ENDTRY</span><span class="p">.</span>
+  <span class="k">IF</span> <span class="n">gr_table</span> <span class="k">IS</span> <span class="k">INITIAL</span><span class="p">.</span>
+    <span class="k">MESSAGE</span> <span class="s1">'Error Creating ALV Grid '</span> <span class="k">TYPE</span> <span class="s1">'I'</span> <span class="k">DISPLAY</span> <span class="k">LIKE</span> <span class="s1">'E'</span><span class="p">.</span>
+    <span class="k">STOP</span><span class="p">.</span>
+  <span class="k">ENDIF</span><span class="p">.</span>
+<span class="cm">** Get functions details</span>
+  <span class="n">gr_functions</span> <span class="o">=</span> <span class="n">gr_table</span><span class="o">-&gt;</span><span class="n">get_functions</span><span class="p">(</span> <span class="p">).</span>
+
+<span class="cm">** Activate All Buttons in Tool Bar</span>
+  <span class="n">gr_functions</span><span class="o">-&gt;</span><span class="n">set_all</span><span class="p">(</span> <span class="n">if_salv_c_bool_sap</span><span class="o">=&gt;</span><span class="n">true</span> <span class="p">).</span>
+
+<span class="cm">******* Layout Settings  *******</span>
+  <span class="k">CLEAR</span> <span class="p">:</span> <span class="n">gr_layout</span><span class="p">,</span> <span class="n">gr_layout_key</span><span class="p">.</span>
+  <span class="k">MOVE</span> <span class="n">sy</span><span class="o">-</span><span class="n">repid</span> <span class="k">TO</span> <span class="n">gr_layout_key</span><span class="o">-</span><span class="k">report</span><span class="p">.</span>                        <span class="c1">"Set Report ID as Layout Key"</span>
+
+  <span class="n">gr_layout</span> <span class="o">=</span> <span class="n">gr_table</span><span class="o">-&gt;</span><span class="n">get_layout</span><span class="p">(</span> <span class="p">).</span>                          <span class="c1">"Get Layout of Table"</span>
+  <span class="n">gr_layout</span><span class="o">-&gt;</span><span class="n">set_key</span><span class="p">(</span> <span class="n">gr_layout_key</span> <span class="p">).</span>                          <span class="c1">"Set Report Id to Layout"</span>
+  <span class="n">gr_layout</span><span class="o">-&gt;</span><span class="n">set_save_restriction</span><span class="p">(</span> <span class="n">if_salv_c_layout</span><span class="o">=&gt;</span><span class="n">restrict_none</span> <span class="p">).</span> <span class="c1">"No Restriction to Save Layout"</span>
+  <span class="k">IF</span> <span class="n">p_var</span> <span class="k">IS</span> <span class="k">INITIAL</span><span class="p">.</span>
+    <span class="n">gr_layout</span><span class="o">-&gt;</span><span class="n">set_default</span><span class="p">(</span> <span class="n">if_salv_c_bool_sap</span><span class="o">=&gt;</span><span class="n">true</span> <span class="p">).</span>         <span class="c1">"Set Default Variant"</span>
+  <span class="k">ELSE</span><span class="p">.</span>
+    <span class="n">gr_layout</span><span class="o">-&gt;</span><span class="n">set_initial_layout</span><span class="p">(</span> <span class="n">p_var</span> <span class="p">).</span>                     <span class="c1">"Set the Selected Variant as Initial"</span>
+  <span class="k">ENDIF</span><span class="p">.</span>
+
+<span class="cm">******* Global Display Settings  *******</span>
+  <span class="k">CLEAR</span> <span class="p">:</span> <span class="n">gr_display</span><span class="p">.</span>
+  <span class="k">MOVE</span> <span class="s1">'Sales Order Details'</span> <span class="k">TO</span> <span class="n">lv_title</span><span class="p">.</span>
+  <span class="n">gr_display</span> <span class="o">=</span> <span class="n">gr_table</span><span class="o">-&gt;</span><span class="n">get_display_settings</span><span class="p">(</span> <span class="p">).</span>               <span class="c1">" Global Display settings"</span>
+  <span class="n">gr_display</span><span class="o">-&gt;</span><span class="n">set_striped_pattern</span><span class="p">(</span> <span class="n">if_salv_c_bool_sap</span><span class="o">=&gt;</span><span class="n">true</span> <span class="p">).</span>  <span class="c1">"Activate Strip Pattern"</span>
+  <span class="n">gr_display</span><span class="o">-&gt;</span><span class="n">set_list_header</span><span class="p">(</span> <span class="n">lv_title</span> <span class="p">).</span>                      <span class="c1">"Report Header"</span>
+
+<span class="cm">******* Aggregate Function Settings *******</span>
+  <span class="n">gr_aggr</span> <span class="o">=</span> <span class="n">gr_table</span><span class="o">-&gt;</span><span class="n">get_aggregations</span><span class="p">(</span> <span class="p">).</span>                      <span class="c1">"Get Aggregate Functions"</span>
+
+<span class="cm">******* Sort Functions *******</span>
+  <span class="n">gr_sort</span> <span class="o">=</span> <span class="n">gr_table</span><span class="o">-&gt;</span><span class="n">get_sorts</span><span class="p">(</span> <span class="p">).</span>
+  <span class="k">IF</span> <span class="n">gr_sort</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">INITIAL</span><span class="p">.</span>
+    <span class="k">TRY</span><span class="p">.</span>
+        <span class="n">gr_sort</span><span class="o">-&gt;</span><span class="n">add_sort</span><span class="p">(</span> <span class="n">columnname</span> <span class="o">=</span> <span class="s1">'ERNAM'</span>
+                           <span class="k">position</span> <span class="o">=</span> <span class="mi">1</span>
+                           <span class="n">sequence</span>   <span class="o">=</span> <span class="n">if_salv_c_sort</span><span class="o">=&gt;</span><span class="n">sort_up</span>
+                           <span class="n">subtotal</span>   <span class="o">=</span> <span class="n">if_salv_c_bool_sap</span><span class="o">=&gt;</span><span class="n">true</span>
+                           <span class="k">group</span>      <span class="o">=</span> <span class="n">if_salv_c_sort</span><span class="o">=&gt;</span><span class="n">group_none</span>
+                           <span class="k">obligatory</span> <span class="o">=</span> <span class="n">if_salv_c_bool_sap</span><span class="o">=&gt;</span><span class="n">false</span> <span class="p">).</span>
+      <span class="k">CATCH</span> <span class="n">cx_salv_not_found</span> <span class="p">.</span>
+      <span class="k">CATCH</span> <span class="n">cx_salv_existing</span> <span class="p">.</span>
+      <span class="k">CATCH</span> <span class="n">cx_salv_data_error</span> <span class="p">.</span>
+    <span class="k">ENDTRY</span><span class="p">.</span>
+
+    <span class="k">TRY</span><span class="p">.</span>
+        <span class="n">gr_sort</span><span class="o">-&gt;</span><span class="n">add_sort</span><span class="p">(</span> <span class="n">columnname</span> <span class="o">=</span> <span class="s1">'ERDAT'</span>
+                           <span class="k">position</span> <span class="o">=</span> <span class="mi">2</span>
+                           <span class="n">sequence</span>   <span class="o">=</span> <span class="n">if_salv_c_sort</span><span class="o">=&gt;</span><span class="n">sort_down</span>
+                           <span class="n">subtotal</span>   <span class="o">=</span> <span class="n">if_salv_c_bool_sap</span><span class="o">=&gt;</span><span class="n">false</span>
+                           <span class="k">group</span>      <span class="o">=</span> <span class="n">if_salv_c_sort</span><span class="o">=&gt;</span><span class="n">group_none</span>
+                           <span class="k">obligatory</span> <span class="o">=</span> <span class="n">if_salv_c_bool_sap</span><span class="o">=&gt;</span><span class="n">false</span> <span class="p">).</span>
+      <span class="k">CATCH</span> <span class="n">cx_salv_not_found</span> <span class="p">.</span>
+      <span class="k">CATCH</span> <span class="n">cx_salv_existing</span> <span class="p">.</span>
+      <span class="k">CATCH</span> <span class="n">cx_salv_data_error</span> <span class="p">.</span>
+    <span class="k">ENDTRY</span><span class="p">.</span>
+  <span class="k">ENDIF</span><span class="p">.</span>
+<span class="cm">******* Table Selection Settings *******</span>
+  <span class="n">gr_select</span> <span class="o">=</span> <span class="n">gr_table</span><span class="o">-&gt;</span><span class="n">get_selections</span><span class="p">(</span> <span class="p">).</span>
+  <span class="k">IF</span> <span class="n">gr_select</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">INITIAL</span><span class="p">.</span>
+    <span class="n">gr_select</span><span class="o">-&gt;</span><span class="n">set_selection_mode</span><span class="p">(</span> <span class="n">if_salv_c_selection_mode</span><span class="o">=&gt;</span><span class="n">row_column</span> <span class="p">).</span> <span class="c1">"Allow single row Selection"</span>
+  <span class="k">ENDIF</span><span class="p">.</span>
+
+<span class="cm">******* Top of List settings *******</span>
+  <span class="k">PERFORM</span> <span class="n">top_of_page</span> <span class="k">CHANGING</span> <span class="n">gr_content</span><span class="p">.</span>
+  <span class="n">gr_table</span><span class="o">-&gt;</span><span class="n">set_top_of_list</span><span class="p">(</span> <span class="n">gr_content</span> <span class="p">).</span>
+
+<span class="cm">******* Event Register settings *******</span>
+  <span class="n">lr_events</span> <span class="o">=</span> <span class="n">gr_table</span><span class="o">-&gt;</span><span class="n">get_event</span><span class="p">(</span> <span class="p">).</span>
+  <span class="k">CREATE</span> <span class="k">OBJECT</span> <span class="n">gr_events</span><span class="p">.</span>
+  <span class="k">SET</span> <span class="k">HANDLER</span> <span class="n">gr_events</span><span class="o">-&gt;</span><span class="n">on_double_click</span> <span class="k">FOR</span> <span class="n">lr_events</span><span class="p">.</span>
+  <span class="k">SET</span> <span class="k">HANDLER</span> <span class="n">gr_events</span><span class="o">-&gt;</span><span class="n">on_link_click</span> <span class="k">FOR</span> <span class="n">lr_events</span><span class="p">.</span>
+
+<span class="cm">** Get the columns from ALV Table</span>
+  <span class="n">gr_columns</span> <span class="o">=</span> <span class="n">gr_table</span><span class="o">-&gt;</span><span class="n">get_columns</span><span class="p">(</span> <span class="p">).</span>
+  <span class="k">IF</span> <span class="n">gr_columns</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">INITIAL</span><span class="p">.</span>
+    <span class="k">REFRESH</span> <span class="p">:</span> <span class="n">lt_column_ref</span><span class="p">.</span>
+    <span class="k">CLEAR</span>   <span class="p">:</span> <span class="n">ls_column_ref</span><span class="p">.</span>
+    <span class="n">lt_column_ref</span> <span class="o">=</span> <span class="n">gr_columns</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">(</span> <span class="p">).</span>
+
+<span class="cm">** Get columns properties</span>
+    <span class="n">gr_columns</span><span class="o">-&gt;</span><span class="n">set_optimize</span><span class="p">(</span> <span class="n">if_salv_c_bool_sap</span><span class="o">=&gt;</span><span class="n">true</span> <span class="p">).</span>
+    <span class="n">gr_columns</span><span class="o">-&gt;</span><span class="n">set_key_fixation</span><span class="p">(</span> <span class="n">if_salv_c_bool_sap</span><span class="o">=&gt;</span><span class="n">true</span> <span class="p">).</span>
+    <span class="k">TRY</span><span class="p">.</span>
+        <span class="n">gr_columns</span><span class="o">-&gt;</span><span class="n">set_color_column</span><span class="p">(</span> <span class="s1">'T_COLOR'</span> <span class="p">).</span>
+      <span class="k">CATCH</span> <span class="n">cx_salv_data_error</span> <span class="p">.</span>
+    <span class="k">ENDTRY</span><span class="p">.</span>
+<span class="cm">** Individual Column Properties.</span>
+    <span class="k">PERFORM</span> <span class="n">column_settings</span><span class="p">.</span>
+  <span class="k">ENDIF</span><span class="p">.</span>
+  <span class="k">CALL</span> <span class="k">METHOD</span> <span class="n">gr_table</span><span class="o">-&gt;</span><span class="k">display</span><span class="p">.</span>
+<span class="k">ENDFORM</span><span class="p">.</span>                    <span class="c1">"alv_grid_display</span>
+
+<span class="cm">*&amp;---------------------------------------------------------------------*</span>
+<span class="cm">*&amp;      Form  column_settings</span>
+<span class="cm">*&amp;---------------------------------------------------------------------*</span>
+<span class="cm">*       text</span>
+<span class="cm">*----------------------------------------------------------------------*</span>
+<span class="k">FORM</span> <span class="n">column_settings</span><span class="p">.</span>
+  <span class="k">LOOP</span> <span class="k">AT</span> <span class="n">lt_column_ref</span> <span class="k">INTO</span> <span class="n">ls_column_ref</span><span class="p">.</span>
+    <span class="k">TRY</span><span class="p">.</span>
+        <span class="n">gr_column</span> <span class="o">?=</span> <span class="n">gr_columns</span><span class="o">-&gt;</span><span class="n">get_column</span><span class="p">(</span> <span class="n">ls_column_ref</span><span class="o">-</span><span class="n">columnname</span> <span class="p">).</span>
+      <span class="k">CATCH</span> <span class="n">cx_salv_not_found</span><span class="p">.</span>
+    <span class="k">ENDTRY</span><span class="p">.</span>
+    <span class="k">IF</span> <span class="n">gr_column</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">INITIAL</span><span class="p">.</span>
+<span class="cm">** Make Mandt column invisible **</span>
+      <span class="k">IF</span> <span class="n">gr_column</span><span class="o">-&gt;</span><span class="n">get_ddic_datatype</span><span class="p">(</span> <span class="p">)</span> <span class="o">=</span> <span class="s1">'CLNT'</span><span class="p">.</span>
+        <span class="n">gr_column</span><span class="o">-&gt;</span><span class="n">set_technical</span><span class="p">(</span> <span class="n">if_salv_c_bool_sap</span><span class="o">=&gt;</span><span class="n">true</span> <span class="p">).</span>
+      <span class="k">ENDIF</span><span class="p">.</span>
+<span class="cm">** Create Aggregate function total for All Numeric/Currency Fields **</span>
+      <span class="k">IF</span> <span class="n">gr_column</span><span class="o">-&gt;</span><span class="n">get_ddic_inttype</span><span class="p">(</span> <span class="p">)</span> <span class="k">EQ</span> <span class="s1">'P'</span> <span class="k">OR</span>
+         <span class="n">gr_column</span><span class="o">-&gt;</span><span class="n">get_ddic_datatype</span><span class="p">(</span> <span class="p">)</span> <span class="k">EQ</span> <span class="s1">'CURR'</span><span class="p">.</span>
+        <span class="k">IF</span> <span class="n">gr_aggr</span> <span class="k">IS</span> <span class="k">NOT</span> <span class="k">INITIAL</span><span class="p">.</span>
+          <span class="k">TRY</span><span class="p">.</span>
+              <span class="n">gr_aggr</span><span class="o">-&gt;</span><span class="n">add_aggregation</span><span class="p">(</span> <span class="n">columnname</span> <span class="o">=</span> <span class="n">ls_column_ref</span><span class="o">-</span><span class="n">columnname</span>
+                                        <span class="n">aggregation</span> <span class="o">=</span> <span class="n">if_salv_c_aggregation</span><span class="o">=&gt;</span><span class="n">total</span> <span class="p">).</span>
+            <span class="k">CATCH</span> <span class="n">cx_salv_data_error</span> <span class="p">.</span>
+            <span class="k">CATCH</span> <span class="n">cx_salv_not_found</span> <span class="p">.</span>
+            <span class="k">CATCH</span> <span class="n">cx_salv_existing</span> <span class="p">.</span>
+          <span class="k">ENDTRY</span><span class="p">.</span>
+        <span class="k">ENDIF</span><span class="p">.</span>
+      <span class="k">ENDIF</span><span class="p">.</span>
+<span class="cm">** Create Check box for fields with domain "XFELD"</span>
+      <span class="k">IF</span> <span class="n">gr_column</span><span class="o">-&gt;</span><span class="n">get_ddic_domain</span><span class="p">(</span> <span class="p">)</span> <span class="k">EQ</span> <span class="s1">'XFELD'</span><span class="p">.</span>
+        <span class="n">gr_column</span><span class="o">-&gt;</span><span class="n">set_cell_type</span><span class="p">(</span> <span class="n">if_salv_c_cell_type</span><span class="o">=&gt;</span><span class="k">checkbox</span> <span class="p">).</span>
+      <span class="k">ENDIF</span><span class="p">.</span>
+
+<span class="cm">** Set color to Date Columns **</span>
+      <span class="k">IF</span> <span class="n">gr_column</span><span class="o">-&gt;</span><span class="n">get_ddic_datatype</span><span class="p">(</span> <span class="p">)</span> <span class="k">EQ</span> <span class="s1">'DATS'</span><span class="p">.</span>
+        <span class="k">CLEAR</span> <span class="p">:</span> <span class="n">ls_colo</span><span class="p">.</span>
+        <span class="k">MOVE</span> <span class="mi">2</span> <span class="k">TO</span> <span class="n">ls_colo</span><span class="o">-</span><span class="n">col</span><span class="p">.</span>
+        <span class="k">MOVE</span> <span class="mi">1</span> <span class="k">TO</span> <span class="n">ls_colo</span><span class="o">-</span><span class="n">int</span><span class="p">.</span>
+        <span class="k">MOVE</span> <span class="mi">1</span> <span class="k">TO</span> <span class="n">ls_colo</span><span class="o">-</span><span class="n">inv</span><span class="p">.</span>
+        <span class="n">gr_column</span><span class="o">-&gt;</span><span class="n">set_color</span><span class="p">(</span> <span class="n">ls_colo</span> <span class="p">).</span>
+      <span class="k">ENDIF</span><span class="p">.</span>
+
+<span class="cm">** Add Hotspot&amp;Hyper Link to the column vbeln</span>
+      <span class="k">IF</span> <span class="n">ls_column_ref</span><span class="o">-</span><span class="n">columnname</span> <span class="k">EQ</span> <span class="s1">'VBELN'</span><span class="p">.</span>
+        <span class="n">gr_column</span><span class="o">-&gt;</span><span class="n">set_cell_type</span><span class="p">(</span> <span class="n">if_salv_c_cell_type</span><span class="o">=&gt;</span><span class="k">hotspot</span> <span class="p">).</span>
+        <span class="n">gr_column</span><span class="o">-&gt;</span><span class="n">set_key</span><span class="p">(</span> <span class="n">if_salv_c_bool_sap</span><span class="o">=&gt;</span><span class="n">true</span> <span class="p">).</span>
+      <span class="k">ENDIF</span><span class="p">.</span>
+
+    <span class="k">ENDIF</span><span class="p">.</span>
+  <span class="k">ENDLOOP</span><span class="p">.</span>
+<span class="k">ENDFORM</span><span class="p">.</span>                    <span class="c1">"column_settings</span>
+
+<span class="cm">*&amp;---------------------------------------------------------------------*</span>
+<span class="cm">*&amp;      Form  top_of_page</span>
+<span class="cm">*&amp;---------------------------------------------------------------------*</span>
+<span class="k">FORM</span> <span class="n">top_of_page</span> <span class="k">CHANGING</span> <span class="n">lr_content</span> <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_form_element</span><span class="p">.</span>
+  <span class="k">DATA</span> <span class="p">:</span> <span class="n">lr_grid</span> <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_form_layout_grid</span><span class="p">,</span>
+         <span class="n">lr_text</span>  <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_form_text</span><span class="p">,</span>
+         <span class="n">lr_label</span> <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_form_label</span><span class="p">,</span>
+         <span class="n">lr_head</span>  <span class="k">TYPE</span> <span class="k">string</span><span class="p">.</span>
+
+  <span class="k">DATA</span><span class="p">:</span> <span class="n">lr_picture</span> <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_form_picture</span><span class="p">.</span>
+
+
+  <span class="k">MOVE</span> <span class="s1">'Sales Order List'</span> <span class="k">TO</span> <span class="n">lr_head</span><span class="p">.</span>
+  <span class="k">CREATE</span> <span class="k">OBJECT</span> <span class="n">lr_grid</span><span class="p">.</span>
+<span class="cm">** Header of Top of Page **</span>
+  <span class="n">lr_grid</span><span class="o">-&gt;</span><span class="n">create_header_information</span><span class="p">(</span> <span class="n">row</span>     <span class="o">=</span> <span class="mi">1</span>
+                                      <span class="k">column</span>  <span class="o">=</span> <span class="mi">1</span>
+                                      <span class="k">text</span>    <span class="o">=</span> <span class="n">lr_head</span>
+                                      <span class="n">tooltip</span> <span class="o">=</span> <span class="n">lr_head</span> <span class="p">).</span>
+<span class="cm">** Add Row **</span>
+  <span class="n">lr_grid</span><span class="o">-&gt;</span><span class="n">add_row</span><span class="p">(</span> <span class="p">).</span>
+
+<span class="cm">** Add Label in Grid **</span>
+  <span class="n">lr_label</span> <span class="o">=</span> <span class="n">lr_grid</span><span class="o">-&gt;</span><span class="n">create_label</span><span class="p">(</span> <span class="n">row</span> <span class="o">=</span> <span class="mi">2</span>
+                                    <span class="k">column</span> <span class="o">=</span> <span class="mi">1</span>
+                                    <span class="k">text</span> <span class="o">=</span> <span class="s1">'No of Records'</span>
+                                    <span class="n">tooltip</span> <span class="o">=</span> <span class="s1">'No of Records'</span> <span class="p">).</span>
+
+<span class="cm">** Add Text in The Grid **</span>
+  <span class="n">lr_text</span> <span class="o">=</span> <span class="n">lr_grid</span><span class="o">-&gt;</span><span class="n">create_text</span><span class="p">(</span> <span class="n">row</span> <span class="o">=</span> <span class="mi">2</span>
+                                  <span class="k">column</span> <span class="o">=</span> <span class="mi">2</span>
+                                  <span class="k">text</span> <span class="o">=</span> <span class="n">l_rec</span>
+                                  <span class="n">tooltip</span> <span class="o">=</span> <span class="n">l_rec</span> <span class="p">).</span>
+<span class="cm">** Set Label and Text Link **</span>
+  <span class="n">lr_label</span><span class="o">-&gt;</span><span class="n">set_label_for</span><span class="p">(</span> <span class="n">lr_text</span> <span class="p">).</span>
+
+  <span class="k">CREATE</span> <span class="k">OBJECT</span> <span class="n">lr_picture</span><span class="p">.</span>
+
+  <span class="n">lr_picture</span><span class="o">-&gt;</span><span class="n">set_picture_id</span><span class="p">(</span> <span class="s1">'ZGAUR'</span> <span class="p">).</span>
+  <span class="n">lr_grid</span><span class="o">-&gt;</span><span class="n">set_element</span><span class="p">(</span> <span class="n">row</span> <span class="o">=</span> <span class="mi">3</span>
+                        <span class="k">column</span> <span class="o">=</span> <span class="mi">1</span>
+                        <span class="n">r_element</span> <span class="o">=</span> <span class="n">lr_picture</span> <span class="p">)</span> <span class="p">.</span>
+
+<span class="cm">** Move lr_grid to lr_content **</span>
+  <span class="n">lr_content</span> <span class="o">=</span> <span class="n">lr_grid</span><span class="p">.</span>
+
+  <span class="k">PERFORM</span> <span class="n">end_of_page</span> <span class="k">CHANGING</span> <span class="n">gr_content</span><span class="p">.</span>
+  <span class="n">gr_table</span><span class="o">-&gt;</span><span class="n">set_end_of_list</span><span class="p">(</span> <span class="n">gr_content</span> <span class="p">).</span>
+
+<span class="k">ENDFORM</span><span class="p">.</span>                    <span class="c1">"top_of_page</span>
+
+<span class="cm">*&amp;---------------------------------------------------------------------*</span>
+<span class="cm">*&amp;      Form</span>
+<span class="cm">*&amp;---------------------------------------------------------------------*</span>
+<span class="k">FORM</span> <span class="n">get_ord_info</span> <span class="k">USING</span> <span class="n">row</span> <span class="k">TYPE</span> <span class="n">salv_de_row</span>
+                        <span class="k">column</span> <span class="k">TYPE</span> <span class="n">salv_de_column</span><span class="p">.</span>
+  <span class="k">IF</span> <span class="k">column</span> <span class="k">EQ</span> <span class="s1">'VBELN'</span><span class="p">.</span>
+    <span class="k">CLEAR</span> <span class="p">:</span> <span class="n">ls_vbak</span><span class="p">.</span>
+    <span class="k">DATA</span><span class="p">:</span> <span class="n">lr_table</span> <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_table</span><span class="p">.</span>
+    <span class="k">READ</span> <span class="k">TABLE</span> <span class="n">lt_vbak</span> <span class="k">INTO</span> <span class="n">ls_vbak</span> <span class="k">INDEX</span> <span class="n">row</span><span class="p">.</span>
+    <span class="k">IF</span> <span class="n">sy</span><span class="o">-</span><span class="n">subrc</span> <span class="k">EQ</span> <span class="mi">0</span><span class="p">.</span>
+<span class="cm">*      SET PARAMETER ID 'AUN' FIELD ls_vbak-vbeln.</span>
+<span class="cm">*      CALL TRANSACTION 'VA03' AND SKIP FIRST SCREEN.</span>
+      <span class="k">SELECT</span> <span class="o">*</span>
+        <span class="k">FROM</span> <span class="n">vbap</span>
+        <span class="k">INTO</span> <span class="k">TABLE</span> <span class="n">lt_vbap</span>
+        <span class="k">WHERE</span> <span class="n">vbeln</span> <span class="o">=</span> <span class="n">ls_vbak</span><span class="o">-</span><span class="n">vbeln</span><span class="p">.</span>
+        <span class="k">IF</span> <span class="n">sy</span><span class="o">-</span><span class="n">subrc</span> <span class="k">IS</span> <span class="k">INITIAL</span><span class="p">.</span>
+          <span class="k">TRY</span><span class="p">.</span>
+          <span class="n">cl_salv_table</span><span class="o">=&gt;</span><span class="n">factory</span><span class="p">(</span> <span class="k">IMPORTING</span> <span class="n">r_salv_table</span> <span class="o">=</span> <span class="n">lr_table</span>
+                                  <span class="k">CHANGING</span>  <span class="n">t_table</span> <span class="o">=</span> <span class="n">lt_vbap</span> <span class="p">).</span>
+          <span class="k">CATCH</span> <span class="n">cx_salv_msg</span><span class="p">.</span>
+          <span class="k">ENDTRY</span><span class="p">.</span>
+
+          <span class="n">lr_table</span><span class="o">-&gt;</span><span class="n">DISPLAY</span><span class="p">(</span> <span class="p">).</span>
+        <span class="k">ENDIF</span><span class="p">.</span>
+    <span class="k">ENDIF</span><span class="p">.</span>
+  <span class="k">ENDIF</span><span class="p">.</span>
+<span class="k">ENDFORM</span><span class="p">.</span>                    <span class="c1">"get_ord_info</span>
+
+<span class="cm">*&amp;---------------------------------------------------------------------*</span>
+<span class="cm">*&amp;      Form  set_color</span>
+<span class="cm">*&amp;---------------------------------------------------------------------*</span>
+<span class="cm">* Set color to the column VBELN &amp; NETWR for Order Value &gt; 1000</span>
+<span class="cm">*----------------------------------------------------------------------*</span>
+<span class="k">FORM</span> <span class="n">set_color</span><span class="p">.</span>
+  <span class="k">LOOP</span> <span class="k">AT</span> <span class="n">lt_vbak</span> <span class="k">ASSIGNING</span> <span class="o">&lt;</span><span class="n">lfs_vbak</span><span class="o">&gt;</span><span class="p">.</span>
+    <span class="k">IF</span> <span class="o">&lt;</span><span class="n">lfs_vbak</span><span class="o">&gt;-</span><span class="n">netwr</span> <span class="k">GT</span> <span class="mi">100</span><span class="p">.</span>
+      <span class="k">REFRESH</span> <span class="p">:</span> <span class="n">lt_color</span><span class="p">.</span>
+
+      <span class="k">CLEAR</span> <span class="p">:</span> <span class="n">ls_color</span><span class="p">.</span>
+      <span class="k">MOVE</span> <span class="s1">'VBELN'</span> <span class="k">TO</span> <span class="n">ls_color</span><span class="o">-</span><span class="n">fname</span><span class="p">.</span>
+      <span class="k">MOVE</span> <span class="mi">5</span>       <span class="k">TO</span> <span class="n">ls_color</span><span class="o">-</span><span class="k">color</span><span class="o">-</span><span class="n">col</span><span class="p">.</span>
+      <span class="k">MOVE</span> <span class="mi">0</span>       <span class="k">TO</span> <span class="n">ls_color</span><span class="o">-</span><span class="k">color</span><span class="o">-</span><span class="n">int</span><span class="p">.</span>
+      <span class="k">MOVE</span> <span class="mi">0</span>       <span class="k">TO</span> <span class="n">ls_color</span><span class="o">-</span><span class="k">color</span><span class="o">-</span><span class="n">inv</span><span class="p">.</span>
+      <span class="k">APPEND</span> <span class="n">ls_color</span> <span class="k">TO</span> <span class="n">lt_color</span><span class="p">.</span>
+
+      <span class="k">CLEAR</span> <span class="p">:</span> <span class="n">ls_color</span><span class="p">.</span>
+      <span class="k">MOVE</span> <span class="s1">'NETWR'</span> <span class="k">TO</span> <span class="n">ls_color</span><span class="o">-</span><span class="n">fname</span><span class="p">.</span>
+      <span class="k">MOVE</span> <span class="mi">5</span>       <span class="k">TO</span> <span class="n">ls_color</span><span class="o">-</span><span class="k">color</span><span class="o">-</span><span class="n">col</span><span class="p">.</span>
+      <span class="k">MOVE</span> <span class="mi">0</span>       <span class="k">TO</span> <span class="n">ls_color</span><span class="o">-</span><span class="k">color</span><span class="o">-</span><span class="n">int</span><span class="p">.</span>
+      <span class="k">MOVE</span> <span class="mi">0</span>       <span class="k">TO</span> <span class="n">ls_color</span><span class="o">-</span><span class="k">color</span><span class="o">-</span><span class="n">inv</span><span class="p">.</span>
+      <span class="k">APPEND</span> <span class="n">ls_color</span> <span class="k">TO</span> <span class="n">lt_color</span><span class="p">.</span>
+
+      <span class="k">MOVE</span> <span class="n">lt_color</span> <span class="k">TO</span> <span class="o">&lt;</span><span class="n">lfs_vbak</span><span class="o">&gt;-</span><span class="n">t_color</span><span class="p">.</span>
+    <span class="k">ENDIF</span><span class="p">.</span>
+  <span class="k">ENDLOOP</span><span class="p">.</span>
+<span class="k">ENDFORM</span><span class="p">.</span>                    <span class="c1">"set_color</span>
+
+<span class="k">FORM</span> <span class="n">end_of_page</span> <span class="k">CHANGING</span> <span class="n">lr_content</span> <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_form_element</span><span class="p">.</span>
+  <span class="k">DATA</span><span class="p">:</span> <span class="n">lr_grid</span> <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_form_layout_grid</span><span class="p">.</span>
+
+  <span class="k">CREATE</span> <span class="k">OBJECT</span> <span class="n">lr_grid</span><span class="p">.</span>
+
+  <span class="n">lr_grid</span><span class="o">-&gt;</span><span class="n">create_label</span><span class="p">(</span> <span class="n">row</span> <span class="o">=</span> <span class="mi">1</span>
+                         <span class="k">column</span> <span class="o">=</span> <span class="mi">1</span>
+                         <span class="k">text</span> <span class="o">=</span> <span class="s1">'End of the page'</span> <span class="p">).</span>
+
+<span class="k">ENDFORM</span><span class="p">.</span>
+
+</code></pre></div></div>
+
+<h3> Output generated by this program:</h3>
+
+<p><img src="http://localhost:4000/images/abap1-20191220/output.png" /></p>
+
+:ET

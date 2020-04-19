@@ -1,0 +1,85 @@
+I"Ð<p>
+We, ABAPers, often get this requirement that we need to extract the data out of spool and use it for some purpose like table display, send to excel, send as an email content. You get the jist, right? Then what? We go ahead and create a length according the data we see in the spool and pray that data being retieved doesn't exceed the length limit.
+<br /><br /><br />
+<img src="http://localhost:4000/images/ABAP/20191220/meme2.JPG" />
+<br /><br /><br /><br />
+We can easily read the spool using different Function Modules and Spool Id. But we always get stuck when we need what kind of data is being retrieved? Why? Because field catalog is missing and what is returned is just plain text file.
+<br /><br /><br /><br />
+<img src="http://localhost:4000/images/ABAP/20191220/meme1.JPG" />
+<br /><br /><br /><br />
+What if I told you that this can be knocked over?<br /><br />
+<h3>&lt;&lt;ENTERS&gt;&gt; &nbsp;&nbsp;&nbsp;&nbsp; <b> ALV Runtime Services </b></h3>
+</p>
+<p><br />
+Have a look at a below code:</p>
+
+<div class="language-abap highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">"Metadata -&gt; To extract the fieldcatalog, layout etc of the ALV.</span>
+<span class="c1">"Data -&gt; Data published by ALV</span>
+
+<span class="n">cl_salv_bs_runtime_info</span><span class="o">=&gt;</span><span class="n">set</span><span class="p">(</span> <span class="k">EXPORTING</span> <span class="k">display</span>  <span class="o">=</span> <span class="n">abap_false</span>
+                                        <span class="n">metadata</span> <span class="o">=</span> <span class="n">abap_true</span>
+                                        <span class="k">data</span>     <span class="o">=</span> <span class="n">abap_true</span> <span class="p">).</span>
+</code></pre></div></div>
+
+<p> Now you have set the parameters, its time to run the report in the background</p>
+
+<div class="language-abap highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SUBMIT</span> <span class="p">(</span><span class="n">p_name</span><span class="p">)</span> <span class="k">USING</span> <span class="k">SELECTION</span><span class="o">-</span><span class="k">SET</span> <span class="n">p_var</span> <span class="k">AND</span> <span class="k">RETURN</span><span class="p">.</span>
+</code></pre></div></div>
+
+<p> This statement will run your report in the background and still will generate a spool but we will not need it to get the things we want!</p>
+
+<p> Now its time to retrieve the results.</p>
+
+<div class="language-abap highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">TRY</span><span class="p">.</span>
+      <span class="n">cl_salv_bs_runtime_info</span><span class="o">=&gt;</span><span class="n">get_data_ref</span><span class="p">(</span> <span class="k">IMPORTING</span> <span class="n">r_data</span> <span class="o">=</span> <span class="n">lr_data</span> <span class="p">).</span>
+      <span class="k">ASSIGN</span> <span class="n">lr_data</span><span class="o">-&gt;*</span> <span class="k">TO</span> <span class="o">&lt;</span><span class="n">fs_data</span><span class="o">&gt;</span><span class="p">.</span>
+      <span class="k">IF</span> <span class="o">&lt;</span><span class="n">fs_data</span><span class="o">&gt;</span> <span class="k">IS</span> <span class="k">ASSIGNED</span><span class="p">.</span>
+        <span class="k">TRY</span><span class="p">.</span>
+            <span class="n">cl_salv_table</span><span class="o">=&gt;</span><span class="n">factory</span><span class="p">(</span> <span class="k">IMPORTING</span>
+                                    <span class="n">r_salv_table</span>   <span class="o">=</span> <span class="n">lr_table</span>
+                                  <span class="k">CHANGING</span>
+                                    <span class="n">t_table</span>        <span class="o">=</span> <span class="o">&lt;</span><span class="n">fs_data</span><span class="o">&gt;</span>  <span class="p">).</span>
+            <span class="n">lt_fieldcat</span> <span class="o">=</span> <span class="n">cl_salv_controller_metadata</span><span class="o">=&gt;</span><span class="n">get_lvc_fieldcatalog</span><span class="p">(</span>
+                <span class="n">r_columns</span>      <span class="o">=</span> <span class="n">lr_table</span><span class="o">-&gt;</span><span class="n">get_columns</span><span class="p">(</span> <span class="p">)</span> <span class="c1">" ALV Filter</span>
+                <span class="n">r_aggregations</span> <span class="o">=</span> <span class="n">lr_table</span><span class="o">-&gt;</span><span class="n">get_aggregations</span><span class="p">(</span> <span class="p">)</span> <span class="c1">" ALV Aggregations</span>
+        <span class="p">).</span>
+          <span class="k">CATCH</span> <span class="k">cx_root</span><span class="p">.</span>
+
+        <span class="k">ENDTRY</span><span class="p">.</span>
+
+        <span class="k">ENDIF</span><span class="p">.</span>
+    <span class="k">CATCH</span> <span class="n">cx_salv_bs_sc_runtime_info</span><span class="p">.</span>
+      
+  <span class="k">ENDTRY</span><span class="p">.</span>
+
+  <span class="n">cl_salv_bs_runtime_info</span><span class="o">=&gt;</span><span class="n">clear_all</span><span class="p">(</span> <span class="p">).</span>
+</code></pre></div></div>
+
+<p>This would simply provide you the results returned during spool generation. Great, right?</p>
+
+<h3> But, how does it work?</h3>
+<p> SAP uses session memory to store this information (Only if requested). Once this, request comes by setting the parameters, whatever parameters are passed to ALV gets stored in the session and then extracted from the memory using standard methods.</p>
+
+<div class="language-abap highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">" This standard part will trigger the request, that runtime info is requested.</span>
+<span class="k">export</span> <span class="n">s_runtime_info</span> <span class="k">from</span> <span class="n">ls_runtime_info</span> <span class="k">to</span> <span class="k">memory</span> <span class="k">id</span> <span class="n">cl_salv_bs_runtime_info</span><span class="o">=&gt;</span><span class="n">c_memid_info</span><span class="p">.</span>
+
+<span class="c1">" This code will retrieve the results set by ALV.</span>
+<span class="k">import</span> <span class="n">t_component</span> <span class="k">to</span> <span class="n">lt_component</span> <span class="k">from</span> <span class="k">memory</span> <span class="k">id</span> <span class="n">cl_salv_bs_runtime_info</span><span class="o">=&gt;</span><span class="n">c_memid_data_def</span><span class="p">.</span>
+
+<span class="c1">" Of course these all happens within standard SAP Classes but SAP Provides a wrapper class 'CL_SALV_BS_RUNTIME_INFO' for us to carry out operations for our needs.</span>
+</code></pre></div></div>
+
+<p>Now, yeah, this has an additional advantage over the traditional methods to read spool but it comes with limitations.</p>
+
+<p><img src="http://localhost:4000/images/ABAP/20191220/distractedjpg.jpeg" /></p>
+
+<h3> Let's talk about the limitations: </h3>
+<ul>
+<li> It will only work when the spool is generated by ALV. It will not work if spool is generated using procedural 'Write' statements.</li>
+<li> It doesn't work well if there are multiple ALV's outputed by Report.</li>
+<li> Data in memory last's as long as session is active. To store such information for long, explicit code needs to be programmed.</li>
+
+
+<i>Happy Learning!</i>
+</ul>
+:ET

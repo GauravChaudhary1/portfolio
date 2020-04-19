@@ -1,0 +1,383 @@
+I"ðµ<h1 id="objective-here-is-to-develop-a-sequential-model-which-can-predict-the-hand-written-digits">Objective here is to develop a sequential model which can predict the hand written digits.</h1>
+
+<p><b>Dataset used:  <b><a href="https://www.tensorflow.org/datasets/catalog/overview">MNIST Dataset</a></b></b></p>
+
+<h1 id="import-required-libraries-and-the-dataset">Import required libraries and the dataset</h1>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="n">np</span>
+<span class="o">%</span><span class="n">matplotlib</span> <span class="n">inline</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="n">plt</span> 
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="n">tf</span> 
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">StratifiedKFold</span>
+
+<span class="c1">#Loading Dataset
+</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">),</span> <span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">datasets</span><span class="p">.</span><span class="n">mnist</span><span class="p">.</span><span class="n">load_data</span><span class="p">()</span>
+</code></pre></div></div>
+
+<h1 id="visualise-a-sample-of-dataset">Visualise a sample of dataset</h1>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Taking the sample from the dataset to visualize the content
+</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Train: X=%s, y=%s'</span> <span class="o">%</span> <span class="p">(</span><span class="n">x_train</span><span class="p">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">y_train</span><span class="p">.</span><span class="n">shape</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="s">'Test: X=%s, y=%s'</span> <span class="o">%</span> <span class="p">(</span><span class="n">x_test</span><span class="p">.</span><span class="n">shape</span><span class="p">,</span> <span class="n">y_test</span><span class="p">.</span><span class="n">shape</span><span class="p">))</span>
+<span class="c1"># plot first few images
+</span><span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">):</span>
+	<span class="c1"># define subplot
+</span>	<span class="n">plt</span><span class="p">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">330</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">i</span><span class="p">)</span>
+	<span class="c1"># plot raw pixel data
+</span>	<span class="n">plt</span><span class="p">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">x_train</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="p">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="s">'gray'</span><span class="p">))</span>
+<span class="c1"># show the figure
+</span><span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Train: X=(60000, 28, 28), y=(60000,)
+Test: X=(10000, 28, 28), y=(10000,)
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/images/ML/20200306/output_4_1.png" /></p>
+
+<h1 id="data-preprocessing">Data preprocessing</h1>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Data present in the dataset is already quite normalized and pre-processed. 
+# However, we will further normalize it to make sure it uses less coomputational power.
+</span>
+<span class="c1"># Normalize the training set
+</span><span class="n">x_train</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Normalize the testing set
+</span><span class="n">x_test</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="n">normalize</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div></div>
+
+<h1 id="sequential-model-building-with-activation-for-each-layer">Sequential Model Building with Activation for each layer</h1>
+
+<p>Sequential model is the simplest model which uses a stack of layers.
+We will build two different models with dirrent parameters to test which model gives better performance.
+<br />
+Model_v1: &lt;ul&gt; &lt;li&gt;Uses a single hidden layer with 64 units with ReLU as a activation function.&lt;/li&gt;
+          &lt;li&gt;For regularization, we will use a Dropout of ratio 0.25 (This is done to avoid overfitting). &lt;/li&gt;
+    &lt;li&gt;Batch Size would be 64 and optimizer will be Adam with learning rate 0.001 &lt;/li&gt; &lt;/ul&gt;
+<br /></p>
+<hr />
+
+<p><br />
+Model_v2: &lt;ul&gt; &lt;li&gt;Uses three hidden layer with 64,64,32 units with Sigmoid as a activation function.&lt;/li&gt;
+          &lt;li&gt;For regularization, we will use both L2 Regularization(Factor: 0.0001) and Dropout of ratio 0.25  &lt;/li&gt;
+    &lt;li&gt;Batch Size would be 256 and optimizer will be Stochastic Gradient Descent with learning rate 0.01 and momemtum 0.95 &lt;/li&gt; &lt;/ul&gt;
+<br /></p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">'''
+Model_v1
+'''</span>
+
+<span class="n">model_v1</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">models</span><span class="p">.</span><span class="n">Sequential</span><span class="p">()</span>
+
+
+<span class="c1"># Flattening the input.
+</span><span class="n">model_v1</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Flatten</span><span class="p">())</span>
+
+<span class="c1"># Input layer with activation function as 'ReLU'
+</span><span class="n">model_v1</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">nn</span><span class="p">.</span><span class="n">relu</span><span class="p">))</span>
+<span class="n">model_v1</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.25</span><span class="p">))</span>
+
+
+<span class="c1"># First Hidden Layer(64 units) with Dropout regularization of ratio  0.25
+</span><span class="n">model_v1</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">nn</span><span class="p">.</span><span class="n">relu</span><span class="p">))</span>
+<span class="n">model_v1</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.25</span><span class="p">))</span>
+
+
+<span class="c1"># Output Layer with 10 units( 0 - 9 )
+</span><span class="n">model_v1</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">nn</span><span class="p">.</span><span class="n">softmax</span><span class="p">))</span>
+
+
+
+<span class="s">'''
+Model_v2
+'''</span>
+
+<span class="n">model_v2</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">models</span><span class="p">.</span><span class="n">Sequential</span><span class="p">()</span>
+
+
+<span class="c1"># Flattening the input.
+</span><span class="n">model_v2</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Flatten</span><span class="p">())</span>
+
+<span class="c1"># Input layer with activation function as 'Sigmoid'
+</span><span class="n">model_v2</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">nn</span><span class="p">.</span><span class="n">sigmoid</span><span class="p">))</span>
+<span class="n">model_v2</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.25</span><span class="p">))</span>
+
+
+<span class="c1"># First Hidden Layer(64 units) with Dropout regularization of ratio  0.25
+</span><span class="n">model_v2</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">nn</span><span class="p">.</span><span class="n">sigmoid</span><span class="p">,</span>
+                                       <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">regularizers</span><span class="p">.</span><span class="n">l2</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">),</span>
+                                       <span class="n">activity_regularizer</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">regularizers</span><span class="p">.</span><span class="n">l2</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">)))</span>
+<span class="n">model_v2</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.25</span><span class="p">))</span>
+
+<span class="c1"># Second Hidden Layer(64 units) with Dropout regularization of ratio  0.25
+</span><span class="n">model_v2</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">nn</span><span class="p">.</span><span class="n">sigmoid</span><span class="p">,</span>
+                                       <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">regularizers</span><span class="p">.</span><span class="n">l2</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">),</span>
+                                       <span class="n">activity_regularizer</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">regularizers</span><span class="p">.</span><span class="n">l2</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">)))</span>
+<span class="n">model_v2</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.25</span><span class="p">))</span>
+
+<span class="c1"># Third Hidden Layer(64 units) with Dropout regularization of ratio  0.25
+</span><span class="n">model_v2</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">32</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">nn</span><span class="p">.</span><span class="n">sigmoid</span><span class="p">,</span>
+                                       <span class="n">kernel_regularizer</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">regularizers</span><span class="p">.</span><span class="n">l2</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">),</span>
+                                       <span class="n">activity_regularizer</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">regularizers</span><span class="p">.</span><span class="n">l2</span><span class="p">(</span><span class="mf">0.0001</span><span class="p">)))</span>
+<span class="n">model_v2</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dropout</span><span class="p">(</span><span class="mf">0.25</span><span class="p">))</span>
+
+<span class="c1"># Output Layer with 10 units( 0 - 9 )
+</span><span class="n">model_v2</span><span class="p">.</span><span class="n">add</span><span class="p">(</span><span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">layers</span><span class="p">.</span><span class="n">Dense</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">activation</span><span class="o">=</span><span class="n">tf</span><span class="p">.</span><span class="n">nn</span><span class="p">.</span><span class="n">softmax</span><span class="p">))</span>
+
+
+
+</code></pre></div></div>
+
+<h1 id="compile-with-categorical-ce-loss-and-metric-accuracy">Compile with categorical CE loss and metric accuracy</h1>
+
+<p>Once we have build the model, we need to compile the model by adding some of the parameters which should feed information to the model on how to start the training process.
+<br /><br /></p>
+<hr />
+
+<p><br />
+For model <b>model_v1</b>, we have used the Optimizer based on Adam Algorithm which uses learning rate of 0.001
+<br />
+For model <b>model_v2</b>, we have used the Stochastic gradient descent and momentum optimizer which uses learning rate of 0.001 and momentum of 0.95</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">model_v1</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">optimizers</span><span class="p">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.001</span><span class="p">)</span> <span class="p">,</span>
+              <span class="n">loss</span><span class="o">=</span><span class="s">'sparse_categorical_crossentropy'</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s">"accuracy"</span><span class="p">])</span>
+
+<span class="n">model_v2</span><span class="p">.</span><span class="nb">compile</span><span class="p">(</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">tf</span><span class="p">.</span><span class="n">keras</span><span class="p">.</span><span class="n">optimizers</span><span class="p">.</span><span class="n">SGD</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="mf">0.95</span><span class="p">)</span> <span class="p">,</span>
+              <span class="n">loss</span><span class="o">=</span><span class="s">'sparse_categorical_crossentropy'</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="p">[</span><span class="s">"accuracy"</span><span class="p">])</span>
+</code></pre></div></div>
+
+<h1 id="train-model-with-cross-validation-with-total-time-taken-shown-for-20-epochs">Train Model with cross validation, with total time taken shown for 20 epochs</h1>
+
+<p><b>Model_v1</b> seems to be giving much more accuracy than <b>model_v2</b>, this is because in model_v1 we tried to avoid over-fitting by giving the Dropout. However with <b>model_v2</b>, with regularization and dropout, we have underfitted the model which has degraded the modelâ€™s accuracy.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="s">'''
+Fitting of Model_v1 with batch size as 64
+'''</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Fitting of Model_v1: </span><span class="si">\</span><span class="se">n</span><span class="s">"</span><span class="p">)</span>
+<span class="n">model_v1_history</span> <span class="o">=</span> <span class="n">model_v1</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span>
+          <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span>
+          <span class="n">epochs</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+          <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+          <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
+
+<span class="s">'''
+Fitting of Model_v2 with batch size as 256
+'''</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Fitting of Model_v2: </span><span class="si">\</span><span class="se">n</span><span class="s">"</span><span class="p">)</span>
+
+<span class="n">model_v2_history</span> <span class="o">=</span> <span class="n">model_v2</span><span class="p">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span>
+          <span class="n">batch_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+          <span class="n">epochs</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+          <span class="n">verbose</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+          <span class="n">validation_data</span><span class="o">=</span><span class="p">(</span><span class="n">x_test</span><span class="p">,</span> <span class="n">y_test</span><span class="p">))</span>
+</code></pre></div></div>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Fitting of Model_v1: 
+
+Train on 60000 samples, validate on 10000 samples
+Epoch 1/20
+60000/60000 [==============================] - 6s 100us/sample - loss: 0.5567 - accuracy: 0.8311 - val_loss: 0.2029 - val_accuracy: 0.9385
+Epoch 2/20
+60000/60000 [==============================] - 4s 60us/sample - loss: 0.2657 - accuracy: 0.9218 - val_loss: 0.1548 - val_accuracy: 0.9533
+Epoch 3/20
+60000/60000 [==============================] - 4s 61us/sample - loss: 0.2146 - accuracy: 0.9383 - val_loss: 0.1375 - val_accuracy: 0.9591
+Epoch 4/20
+60000/60000 [==============================] - 4s 60us/sample - loss: 0.1851 - accuracy: 0.9454 - val_loss: 0.1261 - val_accuracy: 0.9631
+Epoch 5/20
+60000/60000 [==============================] - 4s 61us/sample - loss: 0.1663 - accuracy: 0.9506 - val_loss: 0.1189 - val_accuracy: 0.9642
+Epoch 6/20
+60000/60000 [==============================] - 4s 63us/sample - loss: 0.1558 - accuracy: 0.9542 - val_loss: 0.1141 - val_accuracy: 0.9672
+Epoch 7/20
+60000/60000 [==============================] - 4s 61us/sample - loss: 0.1435 - accuracy: 0.9568 - val_loss: 0.1130 - val_accuracy: 0.9675
+Epoch 8/20
+60000/60000 [==============================] - 4s 62us/sample - loss: 0.1314 - accuracy: 0.9597 - val_loss: 0.1094 - val_accuracy: 0.9686
+Epoch 9/20
+60000/60000 [==============================] - 4s 65us/sample - loss: 0.1277 - accuracy: 0.9612 - val_loss: 0.1058 - val_accuracy: 0.9683
+Epoch 10/20
+60000/60000 [==============================] - 4s 64us/sample - loss: 0.1187 - accuracy: 0.9645 - val_loss: 0.0976 - val_accuracy: 0.9703
+Epoch 11/20
+60000/60000 [==============================] - 4s 63us/sample - loss: 0.1154 - accuracy: 0.9646 - val_loss: 0.1004 - val_accuracy: 0.9702
+Epoch 12/20
+60000/60000 [==============================] - 4s 65us/sample - loss: 0.1094 - accuracy: 0.9658 - val_loss: 0.1011 - val_accuracy: 0.9705
+Epoch 13/20
+60000/60000 [==============================] - 4s 63us/sample - loss: 0.1054 - accuracy: 0.9676 - val_loss: 0.0978 - val_accuracy: 0.9720
+Epoch 14/20
+60000/60000 [==============================] - 4s 63us/sample - loss: 0.1025 - accuracy: 0.9681 - val_loss: 0.0976 - val_accuracy: 0.9719
+Epoch 15/20
+60000/60000 [==============================] - 4s 69us/sample - loss: 0.0980 - accuracy: 0.9706 - val_loss: 0.0922 - val_accuracy: 0.9741
+Epoch 16/20
+60000/60000 [==============================] - 4s 67us/sample - loss: 0.0988 - accuracy: 0.9684 - val_loss: 0.1044 - val_accuracy: 0.9718
+Epoch 17/20
+60000/60000 [==============================] - 5s 82us/sample - loss: 0.0948 - accuracy: 0.9697 - val_loss: 0.1000 - val_accuracy: 0.9731
+Epoch 18/20
+60000/60000 [==============================] - 5s 75us/sample - loss: 0.0919 - accuracy: 0.9717 - val_loss: 0.1011 - val_accuracy: 0.9728
+Epoch 19/20
+60000/60000 [==============================] - 5s 75us/sample - loss: 0.0909 - accuracy: 0.9719 - val_loss: 0.0956 - val_accuracy: 0.9718
+Epoch 20/20
+60000/60000 [==============================] - 5s 78us/sample - loss: 0.0849 - accuracy: 0.9736 - val_loss: 0.0965 - val_accuracy: 0.9738
+Fitting of Model_v2: 
+
+Train on 60000 samples, validate on 10000 samples
+Epoch 1/20
+60000/60000 [==============================] - 6s 93us/sample - loss: 2.3728 - accuracy: 0.1000 - val_loss: 2.3225 - val_accuracy: 0.1135
+Epoch 2/20
+60000/60000 [==============================] - 2s 34us/sample - loss: 2.3287 - accuracy: 0.1041 - val_loss: 2.3222 - val_accuracy: 0.1135
+Epoch 3/20
+60000/60000 [==============================] - 2s 34us/sample - loss: 2.3264 - accuracy: 0.1050 - val_loss: 2.3214 - val_accuracy: 0.1135
+Epoch 4/20
+60000/60000 [==============================] - 2s 34us/sample - loss: 2.3244 - accuracy: 0.1062 - val_loss: 2.3212 - val_accuracy: 0.1135
+Epoch 5/20
+60000/60000 [==============================] - 2s 34us/sample - loss: 2.3233 - accuracy: 0.1089 - val_loss: 2.3207 - val_accuracy: 0.1135
+Epoch 6/20
+60000/60000 [==============================] - 2s 35us/sample - loss: 2.3230 - accuracy: 0.1080 - val_loss: 2.3206 - val_accuracy: 0.1135
+Epoch 7/20
+60000/60000 [==============================] - 2s 35us/sample - loss: 2.3221 - accuracy: 0.1089 - val_loss: 2.3204 - val_accuracy: 0.1135
+Epoch 8/20
+60000/60000 [==============================] - 2s 35us/sample - loss: 2.3215 - accuracy: 0.1095 - val_loss: 2.3198 - val_accuracy: 0.1135
+Epoch 9/20
+60000/60000 [==============================] - 2s 33us/sample - loss: 2.3214 - accuracy: 0.1099 - val_loss: 2.3198 - val_accuracy: 0.1135
+Epoch 10/20
+60000/60000 [==============================] - 2s 35us/sample - loss: 2.3212 - accuracy: 0.1088 - val_loss: 2.3192 - val_accuracy: 0.1135
+Epoch 11/20
+60000/60000 [==============================] - 2s 35us/sample - loss: 2.3204 - accuracy: 0.1107 - val_loss: 2.3191 - val_accuracy: 0.1135
+Epoch 12/20
+60000/60000 [==============================] - 2s 35us/sample - loss: 2.3200 - accuracy: 0.1102 - val_loss: 2.3193 - val_accuracy: 0.1135
+Epoch 13/20
+60000/60000 [==============================] - 2s 33us/sample - loss: 2.3198 - accuracy: 0.1116 - val_loss: 2.3186 - val_accuracy: 0.1135
+Epoch 14/20
+60000/60000 [==============================] - 2s 33us/sample - loss: 2.3195 - accuracy: 0.1099 - val_loss: 2.3183 - val_accuracy: 0.1135
+Epoch 15/20
+60000/60000 [==============================] - 2s 34us/sample - loss: 2.3190 - accuracy: 0.1107 - val_loss: 2.3182 - val_accuracy: 0.1135
+Epoch 16/20
+60000/60000 [==============================] - 2s 37us/sample - loss: 2.3188 - accuracy: 0.1111 - val_loss: 2.3179 - val_accuracy: 0.1135
+Epoch 17/20
+60000/60000 [==============================] - 2s 34us/sample - loss: 2.3183 - accuracy: 0.1109 - val_loss: 2.3173 - val_accuracy: 0.1135
+Epoch 18/20
+60000/60000 [==============================] - 2s 33us/sample - loss: 2.3182 - accuracy: 0.1115 - val_loss: 2.3170 - val_accuracy: 0.1135
+Epoch 19/20
+60000/60000 [==============================] - 2s 33us/sample - loss: 2.3181 - accuracy: 0.1113 - val_loss: 2.3167 - val_accuracy: 0.1135
+Epoch 20/20
+60000/60000 [==============================] - 2s 34us/sample - loss: 2.3178 - accuracy: 0.1109 - val_loss: 2.3166 - val_accuracy: 0.1135
+</code></pre></div></div>
+
+<h1 id="visualise-loss-and-accuracy-history">Visualise Loss and Accuracy history</h1>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1"># Lets see the predictions of model_v1 for a sample set. 
+</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">x_test</span><span class="p">[</span><span class="mi">1000</span><span class="p">],</span><span class="n">cmap</span><span class="o">=</span><span class="s">'gray'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">"Digit at 1000th sample:"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="n">predictions_v1</span> <span class="o">=</span> <span class="n">model_v1</span><span class="p">.</span><span class="n">predict</span><span class="p">([</span><span class="n">x_test</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Predicted by model_v1: "</span><span class="p">,</span><span class="n">np</span><span class="p">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">predictions_v1</span><span class="p">[</span><span class="mi">1000</span><span class="p">]))</span>
+
+<span class="n">predictions_v2</span> <span class="o">=</span> <span class="n">model_v2</span><span class="p">.</span><span class="n">predict</span><span class="p">([</span><span class="n">x_test</span><span class="p">])</span>
+<span class="k">print</span><span class="p">(</span><span class="s">"Predicted by model_v2: "</span><span class="p">,</span><span class="n">np</span><span class="p">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">predictions_v2</span><span class="p">[</span><span class="mi">1000</span><span class="p">]))</span>
+
+<span class="s">'''
+For Model_v1
+'''</span>
+<span class="c1"># summarize history for accuracy
+</span><span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">model_v1_history</span><span class="p">.</span><span class="n">history</span><span class="p">[</span><span class="s">'accuracy'</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">model_v1_history</span><span class="p">.</span><span class="n">history</span><span class="p">[</span><span class="s">'val_accuracy'</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">'model accuracy'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">'accuracy'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'epoch'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">([</span><span class="s">'train'</span><span class="p">,</span> <span class="s">'test'</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="s">'upper left'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># summarize history for loss
+</span><span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">model_v1_history</span><span class="p">.</span><span class="n">history</span><span class="p">[</span><span class="s">'loss'</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">model_v1_history</span><span class="p">.</span><span class="n">history</span><span class="p">[</span><span class="s">'val_loss'</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">'model loss'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">'loss'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'epoch'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">([</span><span class="s">'train'</span><span class="p">,</span> <span class="s">'test'</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="s">'upper left'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+
+
+
+<span class="s">'''
+For Model_v2
+'''</span>
+<span class="c1"># summarize history for accuracy
+</span><span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">model_v2_history</span><span class="p">.</span><span class="n">history</span><span class="p">[</span><span class="s">'accuracy'</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">model_v2_history</span><span class="p">.</span><span class="n">history</span><span class="p">[</span><span class="s">'val_accuracy'</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">'model accuracy'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">'accuracy'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'epoch'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">([</span><span class="s">'train'</span><span class="p">,</span> <span class="s">'test'</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="s">'upper left'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+<span class="c1"># summarize history for loss
+</span><span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">model_v2_history</span><span class="p">.</span><span class="n">history</span><span class="p">[</span><span class="s">'loss'</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">plot</span><span class="p">(</span><span class="n">model_v2_history</span><span class="p">.</span><span class="n">history</span><span class="p">[</span><span class="s">'val_loss'</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">'model loss'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">'loss'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">'epoch'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">legend</span><span class="p">([</span><span class="s">'train'</span><span class="p">,</span> <span class="s">'test'</span><span class="p">],</span> <span class="n">loc</span><span class="o">=</span><span class="s">'upper left'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/images/ML/20200306/output_17_0.png" /></p>
+
+<div class="highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Predicted by model_v1:  9
+Predicted by model_v2:  1
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/images/ML/20200306/output_17_2.png" /></p>
+
+<p><img src="http://localhost:4000/images/ML/20200306/output_17_3.png" /></p>
+
+<p><img src="http://localhost:4000/images/ML/20200306/output_17_4.png" /></p>
+
+<p><img src="http://localhost:4000/images/ML/20200306/output_17_5.png" /></p>
+
+<h1 id="show-confusion-matrix-for-validation-dataset">Show Confusion Matrix for validation dataset</h1>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">predictions_cls_v1</span> <span class="o">=</span> <span class="n">model_v1</span><span class="p">.</span><span class="n">predict_classes</span><span class="p">([</span><span class="n">x_test</span><span class="p">])</span>
+<span class="n">predictions_cls_v2</span> <span class="o">=</span> <span class="n">model_v2</span><span class="p">.</span><span class="n">predict_classes</span><span class="p">([</span><span class="n">x_test</span><span class="p">])</span>
+
+<span class="n">cm_v1</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">predictions_cls_v1</span><span class="p">)</span>
+<span class="n">cm_v2</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">predictions_cls_v2</span><span class="p">)</span>
+
+<span class="s">'''
+For Model_v1
+'''</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cm_v1</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="p">.</span><span class="n">cm</span><span class="p">.</span><span class="n">Blues</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"Predicted labels"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"True labels"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">yticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">'Confusion matrix for Model_v1'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+
+
+<span class="s">'''
+For Model_v2
+'''</span>
+
+<span class="n">plt</span><span class="p">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cm_v2</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="p">.</span><span class="n">cm</span><span class="p">.</span><span class="n">Blues</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s">"Predicted labels"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s">"True labels"</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">xticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">yticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">6</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">8</span><span class="p">,</span><span class="mi">9</span><span class="p">])</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">title</span><span class="p">(</span><span class="s">'Confusion matrix for Model_v2'</span><span class="p">)</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">colorbar</span><span class="p">()</span>
+<span class="n">plt</span><span class="p">.</span><span class="n">show</span><span class="p">()</span>
+</code></pre></div></div>
+
+<p><img src="http://localhost:4000/images/ML/20200306/output_19_0.png" /></p>
+
+<p><img src="http://localhost:4000/images/ML/20200306/output_19_1.png" /></p>
+
+<h1 id="summary">Summary</h1>
+<p>Above results shows that the Model_v1 provides great prediction however Model_v2 has worst performance. Reason behind it that we have underfitted the model by using multiple regularizations while fitting the model which has resulted in the worst performance.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+</code></pre></div></div>
+:ET

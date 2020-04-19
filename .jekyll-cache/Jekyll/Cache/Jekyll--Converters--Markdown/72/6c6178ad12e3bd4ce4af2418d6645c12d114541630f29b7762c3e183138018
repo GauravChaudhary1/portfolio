@@ -1,0 +1,61 @@
+I"ë<p>
+There are various blogs over the internet demonstrating the usage of Custom CSS in the webdynpro applications. To find the specific use case over the internet is sometimes very hard, when the use case you are referring to is quite different.</p>
+
+<p><b>Here goes my business requirement:</b></p>
+
+<p>On the left side of screen, there are two UI elements (TextEdit) for input (<i>Subject &amp; Text</i>) and on the right side, there are buttons which will populate the either of the two inputs.</p>
+
+<p><br /><br /><br /><br />
+<img src="http://localhost:4000/images/ABAP/20200106/1.JPG" />
+<br /><br /><br /><br /></p>
+<p>However, in this case, there is no option to get the trigger where exactly user wants to put the text. Is it in Input1 or Input2?
+Since, in Webdynpro, I could not access 'onClick' event of the UI element and neither can we engage with the DOM elements directly.</p>
+
+<p><br /><br /><br /><br />
+<img src="http://localhost:4000/images/ABAP/20200106/2.gif" />
+<br /><br /><br /><br /></p>
+<p>So, I thought of Changing the Label to Button so that it triggers an event where I could store which Input is actually requested. Let's say if I click on Subject, then system should know that I want to access the Subject and all the buttons on right side should fill the subject.</p>
+<p><br /><br />
+<b>Something like this:</b>
+<br /><br /><br /><br />
+<img src="http://localhost:4000/images/ABAP/20200106/4.JPG" />
+<br /><br /><br /><br /></p>
+<h3>Wait! Its not resolved yet, adding a button instead of Label distorts the visual harmonization and to some organization that is more important escpecially SAP.</h3>
+<p><br /><br /><br /><br /></p>
+<h3>CSS comes to the rescue.</h3>
+<p><br /><br /><br /><br /></p>
+<p>If I am able to convert a button into label with all its properties, voil√†, its all sorted for me then. And great thing, I did.</p>
+<p><br /><br /><br /><br /></p>
+
+<div class="language-abap highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    
+  <span class="n">lo_custom_style_manager</span> <span class="o">=</span> <span class="n">wd_this</span><span class="o">-&gt;</span><span class="n">wd_get_api</span><span class="p">(</span> <span class="p">)</span><span class="o">-&gt;</span><span class="n">get_application</span><span class="p">(</span> <span class="p">)</span><span class="o">-&gt;</span><span class="n">get_custom_style_manager</span><span class="p">(</span> <span class="p">).</span>
+
+  <span class="k">DATA</span> <span class="n">lo_btn_style_properties</span> <span class="k">TYPE</span> <span class="n">if_wd_custom_style</span><span class="o">=&gt;</span><span class="n">t_style_properties</span><span class="p">.</span>
+
+  <span class="n">lo_btn_style_properties</span> <span class="o">=</span> <span class="k">VALUE</span> <span class="o">#</span><span class="p">(</span>
+                                      <span class="p">(</span> <span class="k">name</span> <span class="o">=</span> <span class="s1">'borderColor'</span> <span class="k">value</span> <span class="o">=</span> <span class="s1">'transparent!important'</span> <span class="p">)</span>
+                                      <span class="p">(</span> <span class="k">name</span> <span class="o">=</span> <span class="s1">'hoverBorderColor'</span> <span class="k">value</span> <span class="o">=</span> <span class="s1">'transparent!important'</span> <span class="p">)</span>
+                                      <span class="p">(</span> <span class="k">name</span> <span class="o">=</span> <span class="s1">'backgroundColor'</span> <span class="k">value</span> <span class="o">=</span> <span class="s1">'transparent!important'</span> <span class="p">)</span>
+                                      <span class="p">(</span> <span class="k">name</span> <span class="o">=</span> <span class="s1">'hoverBackgroundColor'</span> <span class="k">value</span> <span class="o">=</span> <span class="s1">'transparent!important'</span> <span class="p">)</span>
+                                      <span class="p">(</span> <span class="k">name</span> <span class="o">=</span> <span class="s1">'fontColor'</span> <span class="k">value</span> <span class="o">=</span> <span class="s1">'#666!important'</span> <span class="p">)</span> <span class="c1">"label Color</span>
+                                    <span class="p">).</span>
+
+  <span class="n">lo_btn_custom_style</span> <span class="o">=</span> <span class="n">lo_custom_style_manager</span><span class="o">-&gt;</span><span class="n">create_custom_style</span><span class="p">(</span> <span class="n">style_class_name</span> <span class="o">=</span> <span class="s1">'myCustomButton'</span>
+                                                                      <span class="n">library_name</span>     <span class="o">=</span> <span class="s1">'STANDARD'</span>
+                                                                      <span class="n">element_type</span>     <span class="o">=</span> <span class="s1">'BUTTON'</span>
+                                                                      <span class="n">style_properties</span> <span class="o">=</span> <span class="n">lo_btn_style_properties</span> <span class="p">).</span>
+
+  <span class="n">lo_custom_style_manager</span><span class="o">-&gt;</span><span class="n">add_custom_style</span><span class="p">(</span> <span class="n">lo_btn_custom_style</span> <span class="p">).</span>
+</code></pre></div></div>
+
+<p><br /><br /><br /><br /></p>
+<p>
+Theme which is created in the WDDOINIT method, then needs to be passed to the Button's property 'styleClassName'.
+</p>
+
+<p><br /><br />
+Results can be seen here.
+<br /><br /><br /><br />
+<img src="http://localhost:4000/images/ABAP/20200106/3.jpg" />
+<br /><br /><br /><br /></p>
+:ET

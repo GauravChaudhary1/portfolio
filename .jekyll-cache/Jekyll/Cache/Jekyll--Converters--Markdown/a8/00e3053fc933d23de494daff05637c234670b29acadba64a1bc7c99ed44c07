@@ -1,0 +1,249 @@
+I"S<h3> Fiori Launcpad is a generic platform which is shared by multiple role experts/users. To change something in the header/footer will affect the whole launcpad and thus impacting all of the users. What if certain group of users wants that information to be shown and some don't? 
+</h3>
+<p>Well, yes, this can be achieved by the Role with which users are assigned. But what if Plugin needs to be deployed just for specific set of applications.</p>
+
+<p><br /><br />
+In this article, we will be seeing below mentioned points related to Plugin Development.</p>
+<ul>
+<li>Internationalization for Plugin Component.</li>
+
+<li>Access Additional Custom Style.</li>
+
+<li>Enable plugin only for specific set of applications.</li>
+</ul>
+
+<p><br /><br /></p>
+
+<h3> Let's get started! </h3>
+<h3><u>Internationalization for Plugin Component.</u></h3>
+<p> We have created the Plugin Project and successfully deployed the application of ABAP or Cloud Platform. In addition to intial project structure, lets create few files <ul>
+<li><b>dialog.fragment.xml</b> under folder <b>'fragment'</b> </li>
+<li><b>data.json</b> under folder <b>'model'</b> </li>
+<li><b>style.css</b> under folder <b>'css'</b> </li>
+</ul>
+<br />
+Now, your project structure should look like this.<br />
+<img src="http://localhost:4000/images/Fiori/20200110/5.jpg" />
+</p>
+
+<p><br /><br /></p>
+
+<p>In the fragment, following code is written:
+<br /><br /></p>
+
+<div class="language-xml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;core:FragmentDefinition</span>
+	<span class="na">xmlns=</span><span class="s">"sap.m"</span>
+	<span class="na">xmlns:core=</span><span class="s">"sap.ui.core"</span><span class="nt">&gt;</span>
+	<span class="nt">&lt;SelectDialog</span>
+		<span class="na">id =</span> <span class="s">"idDialog"</span>
+		<span class="na">title=</span><span class="s">"{i18n&gt;title}"</span>
+		<span class="na">confirm=</span><span class="s">"handleClose"</span>
+		<span class="na">cancel=</span><span class="s">"handleClose"</span>
+		
+		<span class="na">items=</span><span class="s">"{
+			path : '/data'
+		}"</span>
+		<span class="nt">&gt;</span>
+		<span class="nt">&lt;StandardListItem</span>
+			<span class="na">title=</span><span class="s">"{text}"</span>
+			<span class="na">description=</span><span class="s">"{name}"</span>
+			<span class="na">icon=</span><span class="s">"sap-icon://employee"</span>
+			<span class="na">iconDensityAware=</span><span class="s">"false"</span>
+			<span class="na">iconInset=</span><span class="s">"false"</span>
+			<span class="na">type=</span><span class="s">"Active"</span> <span class="nt">/&gt;</span>
+	<span class="nt">&lt;/SelectDialog&gt;</span>
+<span class="nt">&lt;/core:FragmentDefinition&gt;</span>
+</code></pre></div></div>
+<p><br /><br />
+In the model/data, below data is added:
+<br /><br /></p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">{</span><span class="w">
+</span><span class="nl">"data"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="w">
+</span><span class="p">{</span><span class="nl">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Gaurav Chaudhary"</span><span class="w"> </span><span class="p">,</span><span class="w"> </span><span class="nl">"text"</span><span class="p">:</span><span class="s2">"This is called from Data Model"</span><span class="p">}</span><span class="w">
+</span><span class="p">]</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><br /><br /></p>
+
+<p><u><i>Important point to note here, that Fiori Launchpad has its own i18n model, and setting a model directly to Fiori Launchpad could lead to inconsistency. It is a best practice to set the i18n model directly to UI element itself.
+&lt;/u&gt;</i>
+<b>My i18n.properties file contains:</b><br />
+<img src="http://localhost:4000/images/Fiori/20200110/6.jpg" />
+<br /><br /></u></p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//initialize the data model</span>
+
+<span class="kd">var</span> <span class="nx">sUrl</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">.</span><span class="nx">sap</span><span class="p">.</span><span class="nx">getModulePath</span><span class="p">(</span><span class="dl">"</span><span class="s2">com.sap.plugin.plg1.model</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">/data.json</span><span class="dl">"</span><span class="p">);</span>
+<span class="kd">var</span> <span class="nx">oModel</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">sap</span><span class="p">.</span><span class="nx">ui</span><span class="p">.</span><span class="nx">model</span><span class="p">.</span><span class="nx">json</span><span class="p">.</span><span class="nx">JSONModel</span><span class="p">(</span><span class="nx">sUrl</span><span class="p">);</span>
+
+<span class="c1">// Setting the i18n Model</span>
+<span class="kd">var</span> <span class="nx">i18nModel</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">sap</span><span class="p">.</span><span class="nx">ui</span><span class="p">.</span><span class="nx">model</span><span class="p">.</span><span class="nx">resource</span><span class="p">.</span><span class="nx">ResourceModel</span><span class="p">({</span>
+				<span class="na">bundleName</span><span class="p">:</span> <span class="dl">"</span><span class="s2">com.sap.plugin.plg1.i18n.i18n</span><span class="dl">"</span>
+			<span class="p">});</span>
+
+<span class="kd">var</span> <span class="nx">dialogFragment</span> <span class="o">=</span> <span class="nx">sap</span><span class="p">.</span><span class="nx">ui</span><span class="p">.</span><span class="nx">xmlfragment</span><span class="p">(</span><span class="dl">"</span><span class="s2">com.sap.plugin.plg1.fragment.dialog</span><span class="dl">"</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+<span class="nx">dialogFragment</span><span class="p">.</span><span class="nx">setModel</span><span class="p">(</span><span class="nx">oModel</span><span class="p">);</span>
+<span class="nx">dialogFragment</span><span class="p">.</span><span class="nx">setModel</span><span class="p">(</span><span class="nx">i18nModel</span><span class="p">,</span> <span class="dl">"</span><span class="s2">i18n</span><span class="dl">"</span><span class="p">);</span>			
+</code></pre></div></div>
+<p><br /><br /></p>
+
+<h3><u>Access Additional Custom Style.</u></h3>
+
+<p>Additional CSS can be embedded in the metadata of the Component.js using “includes”.</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">metadata</span><span class="p">:</span> <span class="p">{</span>
+			<span class="dl">"</span><span class="s2">manifest</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">json</span><span class="dl">"</span><span class="p">,</span>
+			<span class="nx">includes</span><span class="p">:</span> <span class="p">[</span>
+				<span class="dl">"</span><span class="s2">css/style.css</span><span class="dl">"</span> <span class="c1">//additional CSS to design the Plugin Components.</span>
+			<span class="p">]</span>
+		<span class="p">}</span>
+</code></pre></div></div>
+
+<p><br /><br /></p>
+
+<h3><u>Enable plugin only for specific set of applications.</u></h3>
+
+<p>Now this concept can be implemented if one can listen to events which are published by the Shell Application. Fiori Launchpad publish certain events, however, they are not documented. After thorough debugging, I was able to figure out the event which was getting published when a specific app is opened from Launchpad.
+<br /> <b> How the event gets published?</b>
+<br /></p>
+<section>
+<div>
+sap.ui.core.EventBus().publish(sChannelId?, sEventId, oData?) : void
+</div>
+<br />
+<div> 
+<ul> 
+<li>sChannelId : The channel of the event to fire. If not given, the default channel is used.  </li>
+<li>sEventId : The identifier of the event to fire.</li>
+<li>oData: 	The parameters which should be carried by the event. </li>
+</ul>
+</div>
+</section>
+
+<p><br /> <b> How the event gets subscribed?</b>
+<br /></p>
+<section>
+<div>
+sap.ui.core.EventBus().subscribe(sChannelId?, sEventId, fnFunction, oListener?) : sap.ui.core.EventBus
+</div>
+<br />
+<div> 
+<ul> 
+<li>sChannelId : The channel of the event to subscribe to. If not given, the default channel is used.  </li>
+<li>sEventId : The identifier of the event to listen for.</li>
+<li>fnFunction: The handler function to call when the event occurs. This function will be called in the context of the oListener instance (if present) or on the event bus instance.</li>
+<li>oListener: The object that wants to be notified when the event occurs (this context within the handler function).</li>
+</ul>
+</div>
+</section>
+
+<p><br /> Now let’s see that event.</p>
+
+<p><br /><br /></p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">sap</span><span class="p">.</span><span class="nx">ui</span><span class="p">.</span><span class="nx">getCore</span><span class="p">().</span><span class="nx">getEventBus</span><span class="p">().</span><span class="nx">subscribe</span><span class="p">(</span>
+				<span class="dl">"</span><span class="s2">launchpad</span><span class="dl">"</span><span class="p">,</span>
+				<span class="dl">"</span><span class="s2">appOpened</span><span class="dl">"</span><span class="p">,</span>
+				<span class="nx">function_to_listen_event</span><span class="p">,</span>
+				<span class="k">this</span>
+			<span class="p">);</span>
+</code></pre></div></div>
+
+<p><br /><br /></p>
+<h3> Now let's see the code in the component.js! I have enabled a custom button only for app 'RTA Demo App'.</h3>
+
+<p><br /><br /></p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">metadata</span><span class="p">:</span> <span class="p">{</span>
+			<span class="dl">"</span><span class="s2">manifest</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">json</span><span class="dl">"</span><span class="p">,</span>
+			<span class="nx">includes</span><span class="p">:</span> <span class="p">[</span>
+				<span class="dl">"</span><span class="s2">css/style.css</span><span class="dl">"</span>
+			<span class="p">]</span>
+		<span class="p">},</span>
+
+		<span class="nx">init</span><span class="p">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+			<span class="kd">var</span> <span class="nx">rendererPromise</span> <span class="o">=</span> <span class="k">this</span><span class="p">.</span><span class="nx">_getRenderer</span><span class="p">();</span>
+			<span class="k">this</span><span class="p">.</span><span class="nx">i18nModel</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">sap</span><span class="p">.</span><span class="nx">ui</span><span class="p">.</span><span class="nx">model</span><span class="p">.</span><span class="nx">resource</span><span class="p">.</span><span class="nx">ResourceModel</span><span class="p">({</span>
+				<span class="na">bundleName</span><span class="p">:</span> <span class="dl">"</span><span class="s2">com.sap.plugin.plg1.i18n.i18n</span><span class="dl">"</span>
+			<span class="p">});</span>
+
+			<span class="k">this</span><span class="p">.</span><span class="nx">setModel</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">i18nModel</span><span class="p">,</span> <span class="dl">"</span><span class="s2">i18n</span><span class="dl">"</span><span class="p">);</span>
+			<span class="kd">var</span> <span class="nx">sUrl</span> <span class="o">=</span> <span class="nx">jQuery</span><span class="p">.</span><span class="nx">sap</span><span class="p">.</span><span class="nx">getModulePath</span><span class="p">(</span><span class="dl">"</span><span class="s2">com.sap.plugin.plg1.model</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">/data.json</span><span class="dl">"</span><span class="p">);</span>
+			<span class="k">this</span><span class="p">.</span><span class="nx">oModel</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">sap</span><span class="p">.</span><span class="nx">ui</span><span class="p">.</span><span class="nx">model</span><span class="p">.</span><span class="nx">json</span><span class="p">.</span><span class="nx">JSONModel</span><span class="p">(</span><span class="nx">sUrl</span><span class="p">);</span>
+			<span class="kd">var</span> <span class="nx">that</span> <span class="o">=</span> <span class="k">this</span><span class="p">;</span>
+			<span class="k">this</span><span class="p">.</span><span class="nx">_subscribeEvents</span><span class="p">();</span>
+			<span class="nx">rendererPromise</span><span class="p">.</span><span class="nx">then</span><span class="p">(</span><span class="kd">function</span> <span class="p">(</span><span class="nx">oRenderer</span><span class="p">)</span> <span class="p">{</span>
+				<span class="nx">that</span><span class="p">.</span><span class="nx">oRenderer</span> <span class="o">=</span> <span class="nx">oRenderer</span><span class="p">;</span>
+				<span class="nx">oRenderer</span><span class="p">.</span><span class="nx">addActionButton</span><span class="p">(</span><span class="dl">"</span><span class="s2">sap.m.Button</span><span class="dl">"</span><span class="p">,</span> <span class="p">{</span>
+					<span class="na">id</span><span class="p">:</span> <span class="dl">"</span><span class="s2">myHomeButton</span><span class="dl">"</span><span class="p">,</span>
+					<span class="na">icon</span><span class="p">:</span> <span class="dl">"</span><span class="s2">sap-icon://sys-help-2</span><span class="dl">"</span><span class="p">,</span>
+					<span class="na">text</span><span class="p">:</span> <span class="dl">"</span><span class="s2">Custom Plugin Button</span><span class="dl">"</span><span class="p">,</span>
+					<span class="na">press</span><span class="p">:</span> <span class="kd">function</span> <span class="p">()</span> <span class="p">{</span>
+						<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="k">this</span><span class="p">.</span><span class="nx">dialogFragment</span><span class="p">)</span> <span class="p">{</span>
+							<span class="k">this</span><span class="p">.</span><span class="nx">dialogFragment</span> <span class="o">=</span> <span class="nx">sap</span><span class="p">.</span><span class="nx">ui</span><span class="p">.</span><span class="nx">xmlfragment</span><span class="p">(</span><span class="dl">"</span><span class="s2">com.sap.plugin.plg1.fragment.dialog</span><span class="dl">"</span><span class="p">,</span> <span class="k">this</span><span class="p">);</span>
+							<span class="k">this</span><span class="p">.</span><span class="nx">dialogFragment</span><span class="p">.</span><span class="nx">setModel</span><span class="p">(</span><span class="nx">that</span><span class="p">.</span><span class="nx">oModel</span><span class="p">);</span>
+							<span class="k">this</span><span class="p">.</span><span class="nx">dialogFragment</span><span class="p">.</span><span class="nx">setModel</span><span class="p">(</span><span class="nx">that</span><span class="p">.</span><span class="nx">i18nModel</span><span class="p">,</span> <span class="dl">"</span><span class="s2">i18n</span><span class="dl">"</span><span class="p">);</span>
+						<span class="p">}</span>
+
+						<span class="k">this</span><span class="p">.</span><span class="nx">dialogFragment</span><span class="p">.</span><span class="nx">open</span><span class="p">();</span>
+					<span class="p">}</span>
+				<span class="p">},</span> <span class="kc">true</span><span class="p">,</span> <span class="kc">false</span><span class="p">,</span> <span class="p">[</span><span class="nx">sap</span><span class="p">.</span><span class="nx">ushell</span><span class="p">.</span><span class="nx">renderers</span><span class="p">.</span><span class="nx">fiori2</span><span class="p">.</span><span class="nx">RendererExtensions</span><span class="p">.</span><span class="nx">LaunchpadState</span><span class="p">.</span><span class="nx">App</span><span class="p">]);</span>
+
+			<span class="p">});</span>
+		<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">_subscribeEvents</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span>  <span class="p">){</span>
+		   <span class="nx">sap</span><span class="p">.</span><span class="nx">ui</span><span class="p">.</span><span class="nx">getCore</span><span class="p">().</span><span class="nx">getEventBus</span><span class="p">().</span><span class="nx">subscribe</span><span class="p">(</span>
+				<span class="dl">"</span><span class="s2">launchpad</span><span class="dl">"</span><span class="p">,</span>
+				<span class="dl">"</span><span class="s2">appOpened</span><span class="dl">"</span><span class="p">,</span>
+				<span class="k">this</span><span class="p">.</span><span class="nx">onAppOpened</span><span class="p">,</span>
+				<span class="k">this</span>
+			<span class="p">);</span>
+			<span class="nx">sap</span><span class="p">.</span><span class="nx">ui</span><span class="p">.</span><span class="nx">getCore</span><span class="p">().</span><span class="nx">getEventBus</span><span class="p">().</span><span class="nx">subscribe</span><span class="p">(</span>
+				<span class="dl">"</span><span class="s2">sap.ushell</span><span class="dl">"</span><span class="p">,</span>
+				<span class="dl">"</span><span class="s2">appOpened</span><span class="dl">"</span><span class="p">,</span>
+				<span class="k">this</span><span class="p">.</span><span class="nx">onAppOpened</span><span class="p">,</span>
+				<span class="k">this</span>
+			<span class="p">);</span>
+		<span class="p">}</span>
+</code></pre></div></div>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">onAppOpened</span><span class="p">:</span> <span class="kd">function</span><span class="p">(</span> <span class="nx">e1</span><span class="p">,</span> <span class="nx">e2</span><span class="p">,</span> <span class="nx">appMeta</span><span class="p">,</span> <span class="nx">e4</span> <span class="p">){</span>
+			<span class="k">if</span><span class="p">(</span><span class="nx">appMeta</span><span class="p">[</span><span class="dl">"</span><span class="s2">text</span><span class="dl">"</span><span class="p">]</span> <span class="o">===</span> <span class="dl">"</span><span class="s2">RTA Demo App</span><span class="dl">"</span><span class="p">){</span>
+				<span class="k">this</span><span class="p">.</span><span class="nx">oRenderer</span><span class="p">.</span><span class="nx">showActionButton</span><span class="p">([</span><span class="dl">"</span><span class="s2">myHomeButton</span><span class="dl">"</span><span class="p">],</span> <span class="kc">false</span><span class="p">,</span> <span class="p">[</span><span class="dl">"</span><span class="s2">app</span><span class="dl">"</span><span class="p">]);</span>	
+			<span class="p">}</span><span class="k">else</span>
+			<span class="p">{</span>
+				<span class="k">this</span><span class="p">.</span><span class="nx">oRenderer</span><span class="p">.</span><span class="nx">hideActionButton</span><span class="p">([</span><span class="dl">"</span><span class="s2">myHomeButton</span><span class="dl">"</span><span class="p">],</span> <span class="kc">false</span><span class="p">,</span> <span class="p">[</span><span class="dl">"</span><span class="s2">app</span><span class="dl">"</span><span class="p">]);</span>
+			<span class="p">}</span>
+		<span class="p">}</span>
+</code></pre></div></div>
+
+<h3> Now let's see the results!</h3>
+
+<p><b>After running the launchpad, no custom button is visible in the Me area.</b>
+<img src="http://localhost:4000/images/Fiori/20200110/1.jpg" /></p>
+
+<p><br /></p>
+
+<p><b>After opening the app “Default Application”,still no custom button is visible in the Me area.</b>
+<img src="http://localhost:4000/images/Fiori/20200110/2.jpg" /></p>
+
+<p><br /></p>
+
+<p><b>After opening the app “RTA Demo App”, custom button is visible in the Me area.</b>
+<img src="http://localhost:4000/images/Fiori/20200110/3.jpg" /></p>
+
+<p><br /></p>
+
+<p><b>Performing the action on button, we can see our i18n translation and Data Model Binding.</b>
+<img src="http://localhost:4000/images/Fiori/20200110/4.jpg" /></p>
+
+<p><br /></p>
+
+<p>If you feel this informative, please do share it with other and let me know in the comments!
+<br /><i>Happy Learning.</i></p>
+
+:ET
