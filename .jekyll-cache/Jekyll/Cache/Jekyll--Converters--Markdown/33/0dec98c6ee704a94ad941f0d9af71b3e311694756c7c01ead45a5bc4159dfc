@@ -1,0 +1,70 @@
+I"N<h1 id="intro">Intro</h1>
+
+<p>Have you ever tried to use an event for control CL_SALV_TABLE but unable to do so and then you had to switch to CL_GUI_ALV_GRID so that you can use wide range of events supported by SAP?</p>
+
+<h2 id="intuition">Intuition</h2>
+
+<p>I believe, some developers prefer CL_SALV_TABLE as it is much easier to display the data in ALV. Because of no hassle to create a screen or create a field catalog. However, events are one area in the CL_SALV_TABLE which is lacking and making us to switch to CL_GUI_ALV_GRID. Wouldn’t it be great if we could use the same events raised by CL_GUI_ALV_GRID? Well, say no more.</p>
+
+<h2 id="friendly-interface---if_alv_rm_grid_friend">Friendly Interface - IF_ALV_RM_GRID_FRIEND</h2>
+
+<p>Enters friend interface of CL_GUI_ALV_GRID. All you have to do is to use a little trick, to make use of friend interface IF_ALV_RM_GRID_FRIEND. How? You can refer the source code below.</p>
+
+<h2 id="source-code">Source Code</h2>
+
+<div class="language-abap highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CLASS</span> <span class="n">lcl_main</span> <span class="k">DEFINITION</span>
+  <span class="k">FINAL</span>
+  <span class="k">CREATE</span> <span class="k">PUBLIC</span> <span class="p">.</span>
+
+  <span class="k">PUBLIC</span> <span class="k">SECTION</span><span class="p">.</span>
+    <span class="k">INTERFACES</span> <span class="n">if_alv_rm_grid_friend</span> <span class="p">.</span> <span class="c1">"This is now a mutual friend</span>
+
+    <span class="k">DATA</span><span class="p">:</span> <span class="n">spfli</span> <span class="k">TYPE</span> <span class="k">STANDARD</span> <span class="k">TABLE</span> <span class="k">OF</span> <span class="n">spfli</span><span class="p">,</span>
+          <span class="n">salv</span>  <span class="k">TYPE</span> <span class="k">REF</span> <span class="k">TO</span> <span class="n">cl_salv_table</span><span class="p">.</span>
+
+    <span class="k">METHODS</span><span class="p">:</span> <span class="n">create_salv</span><span class="p">.</span>
+    <span class="k">METHODS</span><span class="p">:</span> 
+      <span class="n">double_click</span> <span class="k">FOR</span> <span class="k">EVENT</span> <span class="n">double_click</span> <span class="k">OF</span> <span class="n">cl_gui_alv_grid</span> <span class="k">IMPORTING</span> <span class="n">e_row</span>
+                                                                       <span class="n">e_column</span>
+                                                                       <span class="n">es_row_no</span><span class="p">.</span>
+<span class="k">ENDCLASS</span><span class="p">.</span>
+</code></pre></div></div>
+
+<div class="language-abap highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">CLASS</span> <span class="n">lcl_main</span> <span class="k">IMPLEMENTATION</span><span class="p">.</span>
+  <span class="k">METHOD</span> <span class="n">create_salv</span><span class="p">.</span>
+    <span class="k">SELECT</span> <span class="o">*</span> <span class="k">UP</span> <span class="k">TO</span> <span class="mi">100</span> <span class="k">ROWS</span> <span class="k">INTO</span> <span class="k">CORRESPONDING</span> <span class="k">FIELDS</span> <span class="k">OF</span> <span class="k">TABLE</span> <span class="o">@</span><span class="n">spfli</span>
+    <span class="k">FROM</span> <span class="n">spfli</span><span class="p">.</span>
+
+    <span class="n">cl_salv_table</span><span class="o">=&gt;</span><span class="n">factory</span><span class="p">(</span>
+      <span class="k">IMPORTING</span>
+        <span class="n">r_salv_table</span>   <span class="o">=</span> <span class="n">salv</span>
+      <span class="k">CHANGING</span>
+        <span class="n">t_table</span>        <span class="o">=</span> <span class="n">spfli</span>
+    <span class="p">).</span>
+
+    <span class="k">SET</span> <span class="k">HANDLER</span> <span class="n">double_click</span> <span class="k">FOR</span> <span class="k">ALL</span> <span class="k">INSTANCES</span><span class="p">.</span>
+
+
+    <span class="k">DATA</span><span class="p">(</span><span class="k">selections</span><span class="p">)</span> <span class="o">=</span> <span class="n">salv</span><span class="o">-&gt;</span><span class="n">get_selections</span><span class="p">(</span> <span class="p">).</span>
+    <span class="k">selections</span><span class="o">-&gt;</span><span class="n">set_selection_mode</span><span class="p">(</span>   <span class="n">if_salv_c_selection_mode</span><span class="o">=&gt;</span><span class="n">cell</span>  <span class="p">).</span> <span class="c1">"Single row selection</span>
+
+
+    <span class="n">salv</span><span class="o">-&gt;</span><span class="n">display</span><span class="p">(</span> <span class="p">).</span>
+
+  <span class="k">ENDMETHOD</span><span class="p">.</span>
+  <span class="k">METHOD</span> <span class="n">double_click</span><span class="p">.</span>
+    <span class="n">BREAK</span><span class="o">-</span><span class="n">POINT</span><span class="p">.</span>
+  <span class="k">ENDMETHOD</span><span class="p">.</span>
+
+<span class="k">ENDCLASS</span><span class="p">.</span>
+
+<span class="n">START</span><span class="o">-</span><span class="k">OF</span><span class="o">-</span><span class="k">SELECTION</span><span class="p">.</span>
+
+  <span class="k">DATA</span><span class="p">(</span><span class="k">output</span><span class="p">)</span> <span class="o">=</span> <span class="k">NEW</span> <span class="n">lcl_main</span><span class="p">(</span> <span class="p">).</span>
+  <span class="k">output</span><span class="o">-&gt;</span><span class="n">create_salv</span><span class="p">(</span> <span class="p">).</span>
+</code></pre></div></div>
+
+<h2 id="conclusion">Conclusion</h2>
+<p>Friend in need is a friend indeed. There are a lot of events which can be used. Give it a try.
+Happy learning!</p>
+:ET

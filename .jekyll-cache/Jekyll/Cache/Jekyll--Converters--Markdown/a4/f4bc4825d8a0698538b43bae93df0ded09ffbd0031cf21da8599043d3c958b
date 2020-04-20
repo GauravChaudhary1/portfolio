@@ -1,9 +1,0 @@
-I"<p>Using OpenCV, a user can interact and play around with a lot of media like images, videos.  </p>
-<p>Following process is carried out in the classification:</p>
-<ol>
-  <li>Read the Images from training set, and scale them to unique size.</li>
-  <li>Extract the features out of images using Singular Value Decomposition.</li>
-  <li>Perform the logistic regression on the images with all features and extracted features.</li>
-  <li>Perform the naive bayes on the images with all features and extracted features.</li>
-</ol>
-:ET
