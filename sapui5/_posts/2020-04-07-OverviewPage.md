@@ -5,4 +5,3 @@ categories: [sapui5]
 tags: [fiori, ovp, navigation]
 ---
 
-{% youtube "" %}
