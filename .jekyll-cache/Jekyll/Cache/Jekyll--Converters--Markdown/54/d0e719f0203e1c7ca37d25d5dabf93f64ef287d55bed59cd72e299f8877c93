@@ -1,0 +1,15 @@
+I"]<h1 id="some-of-the-well-known-competitive-questions-and-my-try-for-solutions-on-abap-and-hana">Some of the well known competitive questions and my try for solutions on ABAP and HANA</h1>
+
+<p>These questions are already out there on various platforms like leetcode, however, to find solutions in ABAP is quite hard for such problems.<br />
+I am trying my hands on the solutions on ABAP or HANA for these as these questions are situation based. <br />
+My objective would be to solve with minimal coding as much as possible.
+<br /><br /></p>
+
+<h2 id="1-given-2-tables-a-manager-table-and-an-employee-table-query-to-get-all-managers-who-have-at-least-one-male--one-female-employee-reporting-to-him">1. Given 2 tables, a manager table and an employee table, query to get all Managers who have at least one male &amp; one female employee reporting to him.</h2>
+
+<p>This is a very simple question to begin with. I will be using aggregation functions for calculating employees under a manager.</p>
+
+<div class="language-abap highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+</code></pre></div></div>
+
+:ET

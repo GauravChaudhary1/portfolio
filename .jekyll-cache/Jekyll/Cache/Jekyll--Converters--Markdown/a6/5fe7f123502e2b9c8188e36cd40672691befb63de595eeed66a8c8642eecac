@@ -1,0 +1,38 @@
+I"Á<h1 id="some-of-the-well-known-competitive-questions-and-my-try-for-solutions-on-abap-and-hana">Some of the well known competitive questions and my try for solutions on ABAP and HANA</h1>
+
+<p>These questions are already out there on various platforms like leetcode, however, to find solutions in ABAP is quite hard for such problems.<br />
+I am trying my hands on the solutions on ABAP or HANA for these as these questions are situation based. <br />
+My objective would be to solve with minimal coding as much as possible.
+<br /><br /></p>
+
+<h2 id="1-given-2-tables-a-manager-table-and-an-employee-table-query-to-get-all-managers-who-have-at-least-one-male--one-female-employee-reporting-to-him">1. Given 2 tables, a manager table and an employee table, query to get all Managers who have at least one male &amp; one female employee reporting to him.</h2>
+
+<p>This is a very simple question to begin with. I will be using aggregation functions for calculating employees under a manager.</p>
+
+<div class="language-abap highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">SELECT</span> <span class="n">a</span><span class="o">~</span><span class="k">id</span><span class="p">,</span>
+       <span class="n">a</span><span class="o">~</span><span class="k">name</span><span class="p">,</span>
+       <span class="nb">SUM</span><span class="p">(</span> <span class="k">CASE</span> <span class="k">WHEN</span> <span class="kt">b</span><span class="o">~</span><span class="n">gender</span> <span class="o">=</span> <span class="s1">'F'</span> <span class="k">THEN</span> <span class="mi">1</span> <span class="k">ELSE</span> <span class="mi">0</span> <span class="k">END</span> <span class="p">)</span> <span class="k">as</span> <span class="n">female</span><span class="p">,</span>
+       <span class="nb">SUM</span><span class="p">(</span> <span class="k">CASE</span> <span class="k">WHEN</span> <span class="kt">b</span><span class="o">~</span><span class="n">gender</span> <span class="o">=</span> <span class="s1">'M'</span> <span class="k">THEN</span> <span class="mi">1</span> <span class="k">ELSE</span> <span class="mi">0</span> <span class="k">END</span> <span class="p">)</span> <span class="k">as</span> <span class="n">male</span>
+  <span class="k">FROM</span> <span class="n">zmanager</span> <span class="k">as</span> <span class="n">a</span>
+  <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">zemployee</span> <span class="k">as</span> <span class="kt">b</span>
+  <span class="k">ON</span> <span class="n">a</span><span class="o">~</span><span class="k">id</span> <span class="o">=</span> <span class="kt">b</span><span class="o">~</span><span class="n">manager</span>
+  <span class="k">INTO</span> <span class="k">TABLE</span> <span class="o">@</span><span class="k">DATA</span><span class="p">(</span><span class="n">lt_</span><span class="p">)</span>
+  <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">a</span><span class="o">~</span><span class="k">id</span><span class="p">,</span> <span class="n">a</span><span class="o">~</span><span class="k">name</span><span class="p">.</span>
+
+  <span class="k">DELETE</span> <span class="n">lt_</span> <span class="k">WHERE</span> <span class="p">(</span> <span class="n">female</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="k">or</span> <span class="n">male</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="p">).</span>
+</code></pre></div></div>
+<h2 id="2-given-a-string-as-an-input-parameter-to-a-program-write-code-to-identify-if-the-string-is-a-palindrome-or-not">2. Given a string as an input parameter to a program, write code to identify if the string is a Palindrome or not.</h2>
+
+<div class="language-abap highlighter-rouge"><div class="highlight"><pre class="highlight"><code>    <span class="k">SELECT</span> <span class="n">a</span><span class="o">~</span><span class="k">id</span><span class="p">,</span>
+        <span class="n">a</span><span class="o">~</span><span class="k">name</span><span class="p">,</span>
+        <span class="nb">SUM</span><span class="p">(</span> <span class="k">CASE</span> <span class="k">WHEN</span> <span class="kt">b</span><span class="o">~</span><span class="n">gender</span> <span class="o">=</span> <span class="s1">'F'</span> <span class="k">THEN</span> <span class="mi">1</span> <span class="k">ELSE</span> <span class="mi">0</span> <span class="k">END</span> <span class="p">)</span> <span class="k">as</span> <span class="n">female</span><span class="p">,</span>
+        <span class="nb">SUM</span><span class="p">(</span> <span class="k">CASE</span> <span class="k">WHEN</span> <span class="kt">b</span><span class="o">~</span><span class="n">gender</span> <span class="o">=</span> <span class="s1">'M'</span> <span class="k">THEN</span> <span class="mi">1</span> <span class="k">ELSE</span> <span class="mi">0</span> <span class="k">END</span> <span class="p">)</span> <span class="k">as</span> <span class="n">male</span>
+    <span class="k">FROM</span> <span class="n">zmanager</span> <span class="k">as</span> <span class="n">a</span>
+    <span class="k">INNER</span> <span class="k">JOIN</span> <span class="n">zemployee</span> <span class="k">as</span> <span class="kt">b</span>
+    <span class="k">ON</span> <span class="n">a</span><span class="o">~</span><span class="k">id</span> <span class="o">=</span> <span class="kt">b</span><span class="o">~</span><span class="n">manager</span>
+    <span class="k">INTO</span> <span class="k">TABLE</span> <span class="o">@</span><span class="k">DATA</span><span class="p">(</span><span class="n">lt_</span><span class="p">)</span>
+    <span class="k">GROUP</span> <span class="k">BY</span> <span class="n">a</span><span class="o">~</span><span class="k">id</span><span class="p">,</span> <span class="n">a</span><span class="o">~</span><span class="k">name</span><span class="p">.</span>
+
+    <span class="k">DELETE</span> <span class="n">lt_</span> <span class="k">WHERE</span> <span class="p">(</span> <span class="n">female</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="k">or</span> <span class="n">male</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="p">).</span>
+</code></pre></div></div>
+:ET
