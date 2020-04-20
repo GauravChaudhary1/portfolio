@@ -1,14 +1,17 @@
 ---
 # no title/section/description; use defaults.
+category: "sapui5"
+pagination:
+    enabled: true
+    collection: 
 ---
 
 {% include head.html %}
 {% include navbar.html %}
 {% include sidebar.html %}
-<div class="posts">
-    {% for category in site.categories %} 
-    {% if category[0] == "sapui5" %}
-    {% for post in category[1] %}
+<div class="posts">    
+    {% for post in site.categories.sapui5 %} 
+
     <a class="post" href="{{ post.url | remove:'.html' | escape }}">
     <article>
 
@@ -30,8 +33,8 @@
 
     </article>
     </a>
-    {% endfor %}
-  {% endif %}
+
 {% endfor %}
 </div>
+
 {% include foot.html %}

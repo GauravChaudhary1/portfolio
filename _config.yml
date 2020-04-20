@@ -17,6 +17,23 @@ plugins:
 
 paginate: 2
 
+gems: 
+  - jekyll-mermaid
+  - jekyll-paginate-v2
+
+mermaid:
+  src: '/js/mermaid.js'
+  src_config: '/js/mermaid_config.js'
+
+pagination:
+  enabled: true
+  per_page: 3
+  permalink: '/page/:num/'
+  title: ':title - page :num of :max'
+  limit: 0
+  sort_field: 'date'
+  sort_reverse: true
+
 
 defaults:
   # _posts

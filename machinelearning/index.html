@@ -6,9 +6,7 @@
 {% include navbar.html %}
 {% include sidebar.html %}
 <div class="posts">
-    {% for category in site.categories %} 
-    {% if category[0] == "machinelearning" %}
-    {% for post in category[1] %}
+    {% for post in site.categories.machinelearning %} 
     <a class="post" href="{{ post.url | remove:'.html' | escape }}">
     <article>
 
@@ -28,8 +26,6 @@
 
     </article>
     </a>
-    {% endfor %}
-  {% endif %}
 {% endfor %}
 </div>
 {% include foot.html %}
