@@ -9,25 +9,34 @@
     {% for category in site.categories %} 
     {% if category[0] == "abap" %}
     {% for post in category[1] %}
-    <a class="post" href="{{ post.url | remove:'.html' | escape }}">
-    <article>
+    <div class="blogcontainer">
+        <div class="blog-directory-grid mt2">
 
-        <h2>
-            {{ post.category | escape }}
-            {{ post.title | escape }}
 
-            <!-- TODO categories -->
-        </h2>
-        <i><time pubdate datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%B %d, %Y" }}</time></i>
-        <br>
-        <p>
-            {{ post.description | escape }}
-        </p>        
+            <div class="blog-item">
+                <div class="blog-card">
+                    <a href="{{ post.url | remove:'.html' | escape }}" class="title">{{ post.title | escape }}</a>
+                    <div class="metadata flex-center"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50">
+                            <path
+                                d="M37.039 41.396c-.298 0-.595-.116-.819-.328L25 30.316 13.779 41.067a1.183 1.183 0 01-1.283.231 1.178 1.178 0 01-.72-1.087V12.58c0-.652.53-1.184 1.184-1.184h24.079c.655 0 1.184.532 1.184 1.184v27.632c0 .476-.282.902-.719 1.087-.15.064-.307.097-.465.097z" />
+                            </svg> <time pubdate
+                            datetime="{{ post.date | date: "%Y-%m-%d" }}">{{ post.date | date: "%B %d, %Y" }}</time>
+                    </div>
+                    <div class="description">{{ post.description | escape }}</div>
+                    <div class="labels">
+                        <div class="link"><a href="{{ post.url | remove:'.html' | escape }}">View Details <svg
+                                    viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                                    <path clip-rule="evenodd"
+                                        d="M21.698 15.286l-9.002-8.999a1.014 1.014 0 00-1.431 0 1.009 1.009 0 000 1.428L19.553 16l-8.287 8.285a1.01 1.01 0 000 1.429 1.014 1.014 0 001.431 0l9.002-8.999a1.02 1.02 0 00-.001-1.429z"
+                                        fill-rule="evenodd" /></svg></a></div>
+                        <div class="label_highlight_green">Completed</div>
+                    </div>
+                </div>
+            </div>
 
-        <div class="continue">Continue reading &rarr;</div>
 
-    </article>
-    </a>
+        </div>
+    </div>
     {% endfor %}
   {% endif %}
 {% endfor %}

@@ -1,0 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600&display=swap');
+
+// Reset
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video{border:0;font-size:100%;font:inherit;vertical-align:baseline;margin:0;padding:0;}
+article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section{display:block;}
+body{line-height:1;height:100%;position:relative;}
+ol,ul{list-style:none;}
+blockquote,q{quotes:none;}
+blockquote:before,blockquote:after,q:before,q:after{content:none;}
+table{border-collapse:collapse;border-spacing:0;}
+
+*,*::before,*::after {box-sizing: border-box;}
+html, body {height: 100%;min-height:100%;width:100%;}
+body {background:#f6fafc;font-family: 'Nunito Sans', sans-serif;font-weight:400;font-size:16px;color:#000;-webkit-font-smoothing: antialiased;-moz-osx-font-smoothing: grayscale;}
+strong {font-weight:700;}
+a {text-decoration:none;}
+
+
+// Just to Position The Grid
+.container {max-width:72rem;margin:5rem auto;padding:1rem;}
+
+// Grid
+$directory-gap: 2rem;
+$directory-size-width: 310px;
+$directory-size-height: 260px;
+.directory-grid {display:grid;gap:$directory-gap;grid-template-columns:repeat(auto-fit, minmax($directory-size-width, 1fr));grid-auto-rows:$directory-size-height;}
+.directory-grid .item {display:flex;width:100%;height:100%;}
+.directory-grid .item .card {position:relative;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;flex:1;padding:1.2rem 1.4rem;background:#fff;border:1px solid #f2f2f2;box-shadow: 0 1px 1px rgba(0,0,0,0.02), 0 2px 2px rgba(0,0,0,0.02), 0 4px 4px rgba(0,0,0,0.02);transition:box-shadow 300ms linear;border-radius:.2rem;overflow:hidden;}
+.directory-grid .item .card:before {content: '';display: block;height: 4px;width: 0;position: absolute;left: 0;top: 0;background-color: #fA6262;transition: all 0.2s ease-in-out;}
+.directory-grid .item:hover .card:before {width: 100%;}
+.directory-grid .item .card .title {color:#1F94C6;font-size:1.1rem;font-weight:600;line-height:1.4;transition:all 250ms linear;}
+.directory-grid .item .card .title:hover {color:darken(#fA6262,20%);}
+.directory-grid .item .card .metadata {display:flex;justify-content:flex-start;align-items:center;margin-top:.8rem;color:#888;font-size:.85rem;text-transform: uppercase;line-height:1.2;}
+.directory-grid .item .card .metadata a {color:#7f8b92;transition: all 250ms ease;}
+.directory-grid .item .card .metadata a:hover {color:#1874ab;}
+.directory-grid .item .card .metadata span {margin:0 .4rem;color:#999;}
+.directory-grid .item .card .metadata svg {width:1rem;height:auto;margin-right:.6rem;fill:#fA6262;}
+.directory-grid .item .card .description {color:#5f6e77;font-size:.9rem;margin-top:.8rem;overflow:hidden;line-height:1.6;flex:1;}
+.directory-grid .item .card .labels {display:flex;justify-content:space-between;align-items:center;width:100%;border-top:1px solid #eee;padding-top:.8rem;margin-top:.2rem;}
+.directory-grid .item .card .labels .link a {display:flex;align-items:center;text-transform:uppercase;font-size:.8rem;color:#fA6262;transition:all 250ms linear;}
+.directory-grid .item .card .labels .link a svg {width:1rem;height:auto;margin-left:.4rem;fill:#fA6262;transition:all 250ms linear;}
+.directory-grid .item .card .labels .link a:hover {color:darken(#fA6262,20%);}
+.directory-grid .item .card .labels .link a:hover svg {transform:translateX(2px);fill:darken(#fA6262,20%);}
+.directory-grid .item:hover .card {box-shadow: 0 1px 2px rgba(0,0,0,0.03), 0 2px 4px rgba(0,0,0,0.03), 0 4px 8px rgba(0,0,0,0.03), 0 8px 16px rgba(0,0,0,0.03),0 16px 32px rgba(0,0,0,0.03), 0 32px 64px rgba(0,0,0,0.03);}
+
+// Labels Highlights
+.label_highlight_green {display:inline-block;text-transform:uppercase;font-size:.75rem;color:#679715;background:#e8f1d8;padding:.4rem;border-radius:.2rem;}
+.label_highlight_red {display:inline-block;text-transform:uppercase;font-size:.75rem;color:#b8491d;background:#f8ebe5;padding:.4rem;border-radius:.2rem;}
