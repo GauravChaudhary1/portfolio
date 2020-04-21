@@ -1,0 +1,14 @@
+I"e<h1 id="create-custom-cards-with-external-and-intent-based-navigation">Create custom cards with external and intent based navigation.</h1>
+
+<h2 id="it-is-not-difficult-to-create-any-custom-card-but-it-takes-a-bit-when-we-want-to-have-navigation-within-or-outsite-the-application-framework">It is not difficult to create any custom card but it takes a bit when we want to have navigation within or outsite the application framework.</h2>
+
+<p>Below tutorial shows how we can achieve this. Feel free to go through with the video.<br />
+For the source code, you can access this <a href="https://github.com/GauravChaudhary1/OverviewPage-Demo">repository</a>
+<br /><br /></p>
+<div class="video-container">
+    <iframe src="https://www.youtube.com/embed/Po7_XpvQl8w" width="850" height="480" frameborder="0" allowfullscreen="true">
+    </iframe>
+  </div>
+
+<p><br /><br /></p>
+:ET
