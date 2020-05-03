@@ -4,6 +4,11 @@ og_type: article
 ---
 
 {% include bloghead.html %}
+
+{% if page.use_math %}
+{% include mathjax_support.html %}
+{% endif %}
+
 {% include navbar.html %}
 {% include share.html %}
     <article>
@@ -23,6 +28,6 @@ og_type: article
         {{ content }}
 
     </article>
-
+    <br> <br> <br>
     {% include comments.html %}
     {% include foot.html %}
