@@ -9,14 +9,17 @@ title: Gaurav Chaudhary
 description: 'Developer'
 permalink: /blog/:title.html
 
+markdown: kramdown
+kramdown:
+    math_engine: mathjax
+
+
 plugins:
   - jekyll-paginate
   - jekyll-sitemap
   - jekyll-gist
   - jekyll-feed
   - jekyll-youtube
-
-paginate: 2
 
 gems: 
   - jekyll-mermaid
@@ -26,14 +29,6 @@ mermaid:
   src: '/js/mermaid.js'
   src_config: '/js/mermaid_config.js'
 
-pagination:
-  enabled: true
-  per_page: 3
-  permalink: '/page/:num/'
-  title: ':title - page :num of :max'
-  limit: 0
-  sort_field: 'date'
-  sort_reverse: true
 
 
 defaults:
