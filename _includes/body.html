@@ -1,14 +1,13 @@
 </head>
 
 <body>
-    
+
     <nav id="navbar" class="navbar fixed-top navbar-expand-lg navbar-dark scrolling-navbar">
         <div class="container">
-            <button class="navbar-toggler" type="button" data-toggle="collapse"
-                    data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <!-- Left -->
@@ -182,7 +181,7 @@
         </div>
     </div>
     <br><br>
-    <div id="blogs" class="wrap">
+    <!-- <div id="blogs" class="wrap">
         {% for post in site.posts limit:6 %}
         {% capture postURL %}{{ page.url | remove:'.html' }}{% endcapture %}
         {% capture postURLAbs %}{{ site.url }}{{ postURL }}{% endcapture %}
@@ -194,6 +193,23 @@
 
 
         {% endfor %}
+    </div> -->
+    <div class="bods">
+        <div class="container">
+            {% for post in site.posts limit:6 %}
+            {% capture postURL %}{{ page.url | remove:'.html' }}{% endcapture %}
+            {% capture postURLAbs %}{{ site.url }}{{ postURL }}{% endcapture %}
+            {% capture postURLAbsEsc %}{{ postURLAbs | escape }}{% endcapture %}
+            <div class="card" onclick="location.href='{{ post.url | escape }}';">
+                <div class="imgBx">
+                    <img src="images/recentpost.png" alt="" width="50px" height="50px">
+                </div>
+                <div class="contentBx">
+                    <h2>{{ post.title }}</h2>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
     </div>
 
     <script>
@@ -203,20 +219,20 @@
                 var light_height = $('#video').height();
                 var menu_pos = $('#navbar').offset().top;
                 var menu_height = $('#navbar').height();
-                var scroll = $(window).scrollTop();                
+                var scroll = $(window).scrollTop();
 
-                if (menu_pos > light_pos && menu_pos < (light_pos + light_height)) {                    
-                    $('#navbar').removeClass('bg-black');                    
+                if (menu_pos > light_pos && menu_pos < (light_pos + light_height)) {
+                    $('#navbar').removeClass('bg-black');
                 }
-                else {                    
-                    if( menu_pos > 1 ){
-                    $('#navbar').addClass('bg-black');
-                }                                        
+                else {
+                    if (menu_pos > 1) {
+                        $('#navbar').addClass('bg-black');
+                    }
                 }
 
             })
         });
-        </script>
+    </script>
 
     <!-- <script type="text/javascript" src="/scripts/jquery-3.4.1.min.js"></script> -->
     <!-- Bootstrap tooltips -->
