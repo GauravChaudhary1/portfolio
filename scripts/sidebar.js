@@ -147,3 +147,12 @@ $(document).ready(function() {
 	});
   
   });
+
+  function downloadResume(){
+	var link = document.createElement("a");
+    link.download = 'Gaurav Chaudhary.pdf';
+	link.href = "https://raw.githubusercontent.com/GauravChaudhary1/portfolio/master/downloads/Gaurav%20Chaudhary.pdf";
+	var event = document.createEvent('MouseEvents');
+    event.initEvent('click', true, true);
+    link.dispatchEvent(event);
+  };
