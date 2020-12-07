@@ -185,5 +185,18 @@
     transition: opacity 0.2s 0;
     opacity: 0;
   }
+
+  .resume {
+    transition-duration: 0.4s;
+    background-color: #E9EAF3;
+    color: black;
+    border: 2px solid #58b5b3; /* Green */
+    padding: 0.2rem !important;
+  }
+  
+  .resume:hover {
+    background-color: #58b5b3; /* Green */
+    color: white;
+  }
   
   
