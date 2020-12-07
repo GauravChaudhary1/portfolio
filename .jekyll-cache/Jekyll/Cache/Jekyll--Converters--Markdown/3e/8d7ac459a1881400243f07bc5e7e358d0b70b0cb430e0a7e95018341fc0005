@@ -1,0 +1,21 @@
+I"�<h1 id="how-to-completely-customize-grc-workflow-notifications">How to completely customize GRC workflow notifications?</h1>
+<p><br />
+Eventhough SAP does offer customizations for the workflow notifications, it becomes tedious when we do not have an idea how to implement the logic which can meet the requirement to send the necessary information via email.</p>
+
+<p><br />
+Let’s see some important transactions needed while configuring and developing the Workflow customizations.</p>
+<ul>
+  <li>SWNCONFIG</li>
+  <li>SE24</li>
+</ul>
+
+<p>And that’s it( unless you would want to change the BSP application itself).
+<br />
+Now I will brief you about the components while configurating each.</p>
+
+<ol>
+  <li>Go to transaction <strong>SWNCONFIG</strong>. You should see a screen like this.<br />
+<img src="/images/GRC/20201207/1.png" alt="" />
+Let’s see what these attributes in left pane represents</li>
+</ol>
+:ET

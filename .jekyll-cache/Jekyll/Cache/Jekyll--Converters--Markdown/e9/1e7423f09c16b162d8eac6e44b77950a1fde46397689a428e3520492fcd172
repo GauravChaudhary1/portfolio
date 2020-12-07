@@ -1,0 +1,46 @@
+I"�<h1 id="how-to-completely-customize-grc-workflow-notifications">How to completely customize GRC workflow notifications?</h1>
+<p><br />
+Eventhough SAP does offer customizations for the workflow notifications, it becomes tedious when we do not have an idea how to implement the logic which can meet the requirement to send the necessary information via email.</p>
+
+<p><br />
+Let’s see some important transactions needed while configuring and developing the Workflow customizations.</p>
+<ul>
+  <li>SWNCONFIG</li>
+  <li>SE24</li>
+</ul>
+
+<p>And that’s it( unless you would want to change the BSP application itself).
+<br />
+Now I will brief you about the components while configuring each.</p>
+
+<ol>
+  <li>Go to transaction <strong>SWNCONFIG</strong>. You should see a screen like this.<br />
+<img src="/images/GRC/20201207/1.png" alt="" />
+<br />
+Let’s see what these attributes( one’s which we are configuring ) in left pane represents.
+
+    <ul>
+      <li><em>Business Scenario</em> : There are different scenario’s provided by Workflow e.g., Standard Workflow, Reminders, Escalations and for each you can configure.</li>
+      <li><em>Message Template</em> : In Message Template, we define how our email body should look like. In workflow, it is governed by BSP applications which are provided by Workflow itself. We just need to pick a handler which will suffice our direction.</li>
+      <li><em>Assigned Message Template</em> : In this, we assign a message template to business scenario.</li>
+    </ul>
+  </li>
+</ol>
+
+<blockquote>
+  <p>Since all of these are already provided in note <a href="https://launchpad.support.sap.com/#/notes/2382927">2382927</a>, I will not provide the redundant information.</p>
+</blockquote>
+
+<ol>
+  <li>
+    <p>Navigate to Message Template, for scenario <strong>GRCNOTIFICATION</strong> provide a custom handler like <em>ZCL_GRPC_MESSAGE_NOTIFICATION</em>. 
+<img src="/images/GRC/20201207/2.png" alt="" /></p>
+  </li>
+  <li>
+    <p>Now, make a copy of class <strong>CL_GRPC_MESSAGE_NOTIFICATION</strong> to <strong>ZCL_GRPC_MESSAGE_NOTIFICATION</strong>.</p>
+  </li>
+  <li>
+    <p>You have your custom class ready with standard logic. Free to embed own logic.</p>
+  </li>
+</ol>
+:ET
