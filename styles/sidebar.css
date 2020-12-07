@@ -14,10 +14,6 @@
     outline: none;
   }
   
-  body {
-    /* background: linear-gradient(45deg, #636f85, #6960a0); */
-  }
-  
   .demo {
     position: fixed;
     top: -2px;
@@ -86,7 +82,7 @@
     position: absolute;
     top: 50px;
     left: 0;
-    width: 20rem;
+    width: 17rem;
     height: 100%;
     padding-top: 1rem;
     opacity: 0;
