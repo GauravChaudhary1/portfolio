@@ -239,6 +239,16 @@
     color: white;
   }
 
+  .skills-row {
+    display: flex;
+  }
+  
+  /* Create two equal columns that sits next to each other */
+  .skills-column {
+    flex: 50%;
+    padding: 10px;
+  }
+
   .footer {
     position: fixed;
     left: 0;
