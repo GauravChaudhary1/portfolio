@@ -1,0 +1,37 @@
+---
+# no title/section/description; use defaults.
+---
+
+{% include head.html %}
+<link rel="stylesheet" href="css/style.css" />
+{% include navbar.html %}
+
+<div class="Cardrow">
+  <div class="bods">
+    <div class="container">
+      {% for category in site.categories %} 
+      {% if category[0] == "project" %}
+      {% for post in category[1] %}
+      {% capture postURL %}{{ page.url | remove:'.html' }}{% endcapture %}
+      {% capture postURLAbs %}{{ site.url }}{{ postURL }}{% endcapture %}
+      {% capture postURLAbsEsc %}{{ postURLAbs | escape }}{% endcapture %}
+      <div class="card" onclick="location.href='{{ post.url | escape }}';">
+          <div class="imgBx">
+              <img src="{{ post.imageUrl }}" alt="" width="200px" height="180px">
+          </div>
+          <div class="contentBx">
+              <h2>{{ post.title }}</h2>
+              <h5>{{ post.description }}</h5>
+          </div>
+      </div>
+      {% endfor %}
+      {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+
+
+
+{% include foot.html %}

@@ -1,0 +1,27 @@
+---
+section: Blog
+og_type: article
+---
+
+{% include bloghead.html %}
+
+{% include navbar.html %}
+
+    <article>
+
+        {% capture postURL %}{{ page.url | remove:'.html' }}{% endcapture %}
+        {% capture postURLAbs %}{{ site.url }}{{ postURL }}{% endcapture %}
+        {% capture postURLAbsEsc %}{{ postURLAbs | escape }}{% endcapture %}
+
+        <h2>
+            <a class="current" href="{{ postURL | escape }}">
+                {{ page.description | escape }}</a>            
+            <!-- TODO categories? -->
+        </h2>
+        
+        <!-- important: don't escape content! it'll actually be HTML markup. -->
+        {{ content }}
+
+    </article>
+    <br> <br> <br>
+    {% include foot.html %}
