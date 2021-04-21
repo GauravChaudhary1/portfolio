@@ -248,20 +248,24 @@
     <div class="bods">
         <div class="container">
             {% assign i = 0 %}
-            {% for post in site.posts limit : 10 %}
-            {% if post.layout != 'project' and i < 6 %}
-            {% capture postURL %}{{ page.url | remove:'.html' }}{% endcapture %}
-            <!-- {% capture postURLAbs %}{{ site.url }}{{ postURL }}{% endcapture %}
-            {% capture postURLAbsEsc %}{{ postURLAbs | escape }}{% endcapture %} -->
-            {% assign i = i | plus:1 %}
-            <div class="card" onclick="location.href='{{ post.url | escape }}';">
-                <div class="imgBx">
-                    <img src="images/recentpost.png" alt="" width="50px" height="50px">
+            {% for post in site.posts %}
+            {% if post.layout != 'project' %}
+                {% if i < 6 %}
+                {% capture postURL %}{{ page.url | remove:'.html' }}{% endcapture %}
+                <!-- {% capture postURLAbs %}{{ site.url }}{{ postURL }}{% endcapture %}
+                {% capture postURLAbsEsc %}{{ postURLAbs | escape }}{% endcapture %} -->
+                {% assign i = i | plus:1 %}
+                <div class="card" onclick="location.href='{{ post.url | escape }}';">
+                    <div class="imgBx">
+                        <img src="images/recentpost.png" alt="" width="50px" height="50px">
+                    </div>
+                    <div class="contentBx">
+                        <h2>{{ post.title }}</h2>
+                    </div>
                 </div>
-                <div class="contentBx">
-                    <h2>{{ post.title }}</h2>
-                </div>
-            </div>
+                {% else %}
+                    {% break %}
+                {% endif %}
             {% endif %}
             {% endfor %}
 
