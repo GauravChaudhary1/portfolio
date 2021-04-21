@@ -1,4 +1,0 @@
-I"Á<h3> Fiori Launcpad is a generic platform which is shared by multiple role experts/users. To change something in the header/footer will affect the whole launcpad and thus impacting all of the users. What if certain group of users wants that information to be shown and some don't? 
-</h3>
-<p>Well, yes, this can be achieved by the Role with which users are assigned. But what if Plugin needs to be deployed just for specific set of applications.</p>
-:ET

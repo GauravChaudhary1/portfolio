@@ -245,25 +245,15 @@
         </div>
     </div>
     <br><br>
-    <!-- <div id="blogs" class="wrap">
-        {% for post in site.posts limit:6 %}
-        {% capture postURL %}{{ page.url | remove:'.html' }}{% endcapture %}
-        {% capture postURLAbs %}{{ site.url }}{{ postURL }}{% endcapture %}
-        {% capture postURLAbsEsc %}{{ postURLAbs | escape }}{% endcapture %}
-        <div class="box box{{ forloop.index }} shadow{{ forloop.index }} " onclick="location.href='{{ post.url | escape }}';" style="cursor: pointer;">
-            <h3 style="color:black; font-size: 1vw;"> {{ post.title }} </h3>
-
-        </div>
-
-
-        {% endfor %}
-    </div> -->
     <div class="bods">
         <div class="container">
-            {% for post in site.posts limit:6 %}
+            {% assign i = 0 %}
+            {% for post in site.posts limit : 10 %}
+            {% if post.layout != 'project' and i < 6 %}
             {% capture postURL %}{{ page.url | remove:'.html' }}{% endcapture %}
-            {% capture postURLAbs %}{{ site.url }}{{ postURL }}{% endcapture %}
-            {% capture postURLAbsEsc %}{{ postURLAbs | escape }}{% endcapture %}
+            <!-- {% capture postURLAbs %}{{ site.url }}{{ postURL }}{% endcapture %}
+            {% capture postURLAbsEsc %}{{ postURLAbs | escape }}{% endcapture %} -->
+            {% assign i = i | plus:1 %}
             <div class="card" onclick="location.href='{{ post.url | escape }}';">
                 <div class="imgBx">
                     <img src="images/recentpost.png" alt="" width="50px" height="50px">
@@ -272,7 +262,9 @@
                     <h2>{{ post.title }}</h2>
                 </div>
             </div>
+            {% endif %}
             {% endfor %}
+
         </div>
     </div>
 
