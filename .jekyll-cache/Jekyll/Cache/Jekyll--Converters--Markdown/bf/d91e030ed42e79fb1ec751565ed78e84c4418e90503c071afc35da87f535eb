@@ -1,0 +1,167 @@
+I"`5<h1 id="reuse-s4-hana-attachment-framework-in-custom-application">Reuse S/4 HANA Attachment Framework in Custom Application</h1>
+
+<p>SAP S/4 HANA uses a generic attachment framework which is shared among most of the applications using attachment services, like Purchase Orders. Wouldn’t it be cool if we could leverage the same in our custom applications.</p>
+
+<h2 id="how-will-it-help">How will it help?</h2>
+
+<ul>
+  <li>It allows modularity and reusability throughout the application.</li>
+  <li>It ensures we stay updated with any standard application framework changes.</li>
+  <li>It provides draft compatibility services, i.e., attachment gets saved as draft first until they are saved explicitly to the database.</li>
+  <li>No hassle of maintaining either oData service or actual application.</li>
+</ul>
+
+<h2 id="okay-then-how-do-we-begin">Okay, then how do we begin?</h2>
+
+<p>First things first, we will understand few technical details which application has to offer.
+Standard Application which we need to re-use: 
+<strong>sap.se.mi.plm.lib.attachmentservice</strong></p>
+
+<p>This service offers three different things:</p>
+
+<ol>
+  <li>Attachment Library Services as a Control</li>
+  <li>Free Style UI5 Application embedding</li>
+  <li>Smart Template Fiori Application embedding</li>
+</ol>
+
+<p>Out of these, we will be focusing mainly on the Fiori Application embedding in this blog.</p>
+
+<h2 id="designing-a-custom-framework-for-backend">Designing a custom framework for backend</h2>
+<p>Since every standard application handles storing and authorization separately however, we can design one custom framework which can be reused in every custom application.
+What we need?</p>
+
+<ol>
+  <li>We need a BADI for Handling Authorization(this is important)</li>
+  <li>We need a BADI if we want to provide any addition for draft persistence.</li>
+  <li>Likewise, we need a BADI if we want logic to persist in the data.</li>
+  <li>We need a custom BO for attachment.</li>
+</ol>
+
+<h2 id="creating-custom-bo">Creating Custom BO</h2>
+
+<p>Navigate to tcode SWO1 and create the BO like below:</p>
+
+<p><img src="/images/Fiori/20210425/1.png" alt="" /></p>
+
+<p>We do not need to generate the BO as we just the reference for SAP DMS(Document Management System).</p>
+<blockquote>
+  <p>We can generate the BO by providing necessary details for Modeled Objects. But for this blog and framework we do not need this.</p>
+</blockquote>
+
+<h2 id="implementing-a-badi">Implementing a BADI</h2>
+
+<p>In this blog I will implement BADI only for handling Authorization.
+Enhancement Spot: <strong>ES_CV_ODATA_ATTACHMENTS</strong>
+This offers three BADI, and we will implement BADI <strong>BADI_CV_ODATA_ATTACHMENTS_AUTH</strong></p>
+
+<p>This is “multiple use” BADI and therefore we need to provide a filter for our custom applications.
+We will only provide the BO name which we created in last section as OBJECT_TYPE for the filter.</p>
+
+<p><img src="/images/Fiori/20210425/2.png" alt="" /></p>
+
+<p>Now we need to implement the interface methods for BADI. We are provided with two methods</p>
+
+<ul>
+  <li><strong>IF_EX_CV_ODATA_ATTACHMENT_AUTH~CHECK_AUTHORIZATION</strong> - This is a method which checks whether user is authorized for the service or not.</li>
+  <li><strong>IF_EX_CV_ODATA_ATTACHMENT_AUTH~CHECK_USER_AUTHORIZATION</strong> - This methods checks for a user which actions are authorized. 
+Ofcourse we would need to implement the logic for both.</li>
+</ul>
+
+<p>For the first method, if you do not wish to implement authorization logic, please make sure to clear the returning variable.</p>
+
+<div class="language-abap highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">method</span> <span class="n">IF_EX_CV_ODATA_ATTACHMENT_AUTH</span><span class="o">~</span><span class="n">CHECK_AUTHORIZATION</span><span class="p">.</span>  
+  <span class="c1">" Provide authorization logic here</span>
+  <span class="c1">" Else, just clear the returning variable</span>
+<span class="k">CLEAR</span> <span class="p">:</span><span class="n">cv_no_authorization</span><span class="p">.</span>  
+  
+<span class="k">endmethod</span><span class="p">.</span>
+</code></pre></div></div>
+
+<h2 id="configuring-the-frontend">Configuring the Frontend</h2>
+
+<h3 id="configuring-the-manifestjson">Configuring the manifest.json</h3>
+
+<p>Add lib “sap.se.mi.plm.lib.attachmentservice” as dependency.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"sap.ui5"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+		</span><span class="nl">"dependencies"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+		</span><span class="nl">"minUI5Version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"1.65.0"</span><span class="p">,</span><span class="w">
+		</span><span class="nl">"libs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+			</span><span class="nl">"sap.ui.core"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+				</span><span class="nl">"lazy"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+			</span><span class="p">},</span><span class="w">
+			</span><span class="nl">"sap.ui.generic.app"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+				</span><span class="nl">"lazy"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+			</span><span class="p">},</span><span class="w">
+			</span><span class="nl">"sap.suite.ui.generic.template"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+				</span><span class="nl">"lazy"</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="w">
+			</span><span class="p">},</span><span class="w">
+			</span><span class="nl">"sap.se.mi.plm.lib.attachmentservice"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+			</span><span class="p">}</span><span class="w">
+
+		</span><span class="nl">"components"</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span><span class="w">
+		</span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">		
+</span></code></pre></div></div>
+<p>Add below to Object Page of the main entity. This makes sure, that the component is added as a section.</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"embeddedComponents"</span><span class="p">:{</span><span class="w">
+	</span><span class="nl">"simple::Attachments"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+		</span><span class="nl">"id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"simple::Attachments"</span><span class="p">,</span><span class="w">
+		</span><span class="nl">"componentName"</span><span class="p">:</span><span class="w"> </span><span class="s2">"sap.se.mi.plm.lib.attachmentservice.attachment.components.stcomponent"</span><span class="p">,</span><span class="w">
+		</span><span class="nl">"title"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span><span class="w">
+		</span><span class="nl">"settings"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+		</span><span class="nl">"mode"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{= ${ui&gt;/editable}?'C':'D'}"</span><span class="p">,</span><span class="w">
+		</span><span class="nl">"objectType"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ZATTACH"</span><span class="p">,</span><span class="w">
+		</span><span class="nl">"objectKey"</span><span class="p">:</span><span class="w"> </span><span class="s2">"{parts:[{path:'Travreq'},{path:'DraftUUID'}],formatter:'com.sap.fiori.travel.model.formatter.returnAttachmentKey'}"</span><span class="w">
+		</span><span class="p">}</span><span class="w">
+	</span><span class="p">}</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="/images/Fiori/20210425/3.png" alt="" /></p>
+
+<p>and as for the formatter function</p>
+
+<div class="language-javascript highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nx">jQuery</span><span class="p">.</span><span class="nx">sap</span><span class="p">.</span><span class="nx">declare</span><span class="p">(</span><span class="dl">"</span><span class="s2">com.sap.fiori.travel.model.formatter</span><span class="dl">"</span><span class="p">);</span>
+
+<span class="nx">com</span><span class="p">.</span><span class="nx">sap</span><span class="p">.</span><span class="nx">fiori</span><span class="p">.</span><span class="nx">travel</span><span class="p">.</span><span class="nx">model</span><span class="p">.</span><span class="nx">formatter</span> <span class="o">=</span> <span class="p">{</span>
+
+<span class="na">returnAttachmentKey</span><span class="p">:</span>  <span class="kd">function</span> <span class="p">(</span><span class="nx">travreq</span><span class="p">,</span> <span class="nx">DraftUUID</span><span class="p">)</span> <span class="p">{</span>
+	<span class="kd">var</span>  <span class="nx">objectKey</span> <span class="o">=</span> <span class="dl">""</span><span class="p">;</span>
+	<span class="k">if</span> <span class="p">(</span><span class="nx">travreq</span> <span class="o">!==</span> <span class="kc">undefined</span> <span class="o">&amp;&amp;</span> <span class="nx">travreq</span> <span class="o">!==</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">travreq</span> <span class="o">!==</span> <span class="dl">"</span><span class="s2">00000000</span><span class="dl">"</span><span class="p">)</span> <span class="p">{</span>
+		<span class="nx">objectKey</span> <span class="o">=</span> <span class="nx">travreq</span><span class="p">;</span>
+	<span class="p">}</span> <span class="k">else</span>  <span class="k">if</span> <span class="p">(</span><span class="nx">DraftUUID</span> <span class="o">!==</span> <span class="kc">undefined</span> <span class="o">&amp;&amp;</span> <span class="nx">DraftUUID</span> <span class="o">!==</span> <span class="kc">null</span> <span class="o">&amp;&amp;</span> <span class="nx">DraftUUID</span> <span class="o">!==</span> <span class="dl">""</span><span class="p">)</span> <span class="p">{</span>
+		<span class="nx">objectKey</span> <span class="o">=</span> <span class="nx">DraftUUID</span><span class="p">.</span><span class="nx">replace</span><span class="p">(</span><span class="sr">/</span><span class="se">[^</span><span class="sr">a-zA-Z0-9</span><span class="se">]</span><span class="sr">/g</span><span class="p">,</span> <span class="dl">""</span><span class="p">);</span>
+	<span class="p">}</span>
+	<span class="k">return</span>  <span class="nx">objectKey</span><span class="p">;</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+
+</code></pre></div></div>
+
+<h2 id="for-final-save-to-db-use-below-code-snipped-to-convert-objects-from-draft-to-active-on-save-handler">For final save to DB, use below code snipped to convert objects from Draft to Active on Save Handler</h2>
+
+<div class="language-abap highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">DATA</span> <span class="n">objectkey</span> <span class="k">TYPE</span> <span class="n">objky</span><span class="p">.</span>  
+<span class="k">DATA</span> <span class="n">temp_objectkey</span> <span class="k">TYPE</span> <span class="n">objky</span><span class="p">.</span>  
+<span class="k">DATA</span><span class="p">(</span><span class="n">attachment_api</span><span class="p">)</span> <span class="o">=</span> <span class="n">cl_odata_cv_attachment_api</span><span class="o">=&gt;</span><span class="n">get_instance</span><span class="p">(</span> <span class="p">).</span>
+
+<span class="c1">" ObjectKey : Key with which draft should be converted.</span>
+<span class="c1">" Temp_objectkey : Attachment saved with Draft Id's</span>
+
+<span class="k">CALL</span> <span class="k">METHOD</span> <span class="n">attachment_api</span><span class="o">-&gt;</span><span class="n">if_odata_cv_attachment_api</span><span class="o">~</span><span class="n">save</span>  
+<span class="k">EXPORTING</span>  
+<span class="n">iv_objecttype</span> <span class="o">=</span> <span class="s1">'ZATTACH'</span>  
+<span class="n">iv_objectkey</span> <span class="o">=</span> <span class="n">objectkey</span>  
+<span class="n">iv_objecttype_long</span> <span class="o">=</span> <span class="s1">'ZATTACH'</span>  
+<span class="n">iv_temp_objectkey</span> <span class="o">=</span> <span class="n">temp_objectkey</span>  
+<span class="n">iv_no_commit</span> <span class="o">=</span> <span class="n">abap_true</span>  
+<span class="k">IMPORTING</span>  
+<span class="n">ev_success</span> <span class="o">=</span> <span class="k">DATA</span><span class="p">(</span><span class="n">ok</span><span class="p">)</span>  
+<span class="n">et_messages</span> <span class="o">=</span> <span class="k">DATA</span><span class="p">(</span><span class="k">messages</span><span class="p">).</span>
+</code></pre></div></div>
+
+<h1 id="now-lets-see-the-output">Now, let’s see the output</h1>
+
+:ET
