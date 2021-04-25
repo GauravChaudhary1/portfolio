@@ -1,4 +1,4 @@
-I"7<h1 id="reuse-s4-hana-attachment-framework-in-custom-application">Reuse S/4 HANA Attachment Framework in Custom Application</h1>
+I"œ7<h1 id="reuse-s4-hana-attachment-framework-in-custom-application">Reuse S/4 HANA Attachment Framework in Custom Application</h1>
 
 <p>SAP S/4 HANA uses a generic attachment framework which is shared among most of the applications using attachment services, like Purchase Orders. Wouldnâ€™t it be cool if we could leverage the same in our custom applications.</p>
 
@@ -174,7 +174,7 @@ Ofcourse we would need to implement the logic for both.</li>
 
 <p>Let me know if this was helpfull to you.</p>
 
-<p>/</p>
+<p><a href="https://help.sap.com/viewer/36802406aebb4b96b1598246e1d316ee/2020.000/en-US/94a0ae633f6f4bfcbc7e1cb255eb908f.html">For more details check here</a></p>
 
 <p>Happy Learning!</p>
 :ET

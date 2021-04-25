@@ -180,5 +180,6 @@ You can go ahead and upload the attachments and it will get saved as the draft. 
 
 Let me know if this was helpfull to you.
 
+[For more details check here](https://help.sap.com/viewer/36802406aebb4b96b1598246e1d316ee/2020.000/en-US/94a0ae633f6f4bfcbc7e1cb255eb908f.html)
 
 Happy Learning!
