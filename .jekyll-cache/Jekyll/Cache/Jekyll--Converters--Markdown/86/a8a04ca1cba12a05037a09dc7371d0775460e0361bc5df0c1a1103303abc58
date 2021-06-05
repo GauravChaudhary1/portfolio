@@ -1,0 +1,88 @@
+I"'<h1 id="auto-translations-of-ui5fiori-apps">Auto-translations of UI5/Fiori Apps</h1>
+
+<h2 id="leverage-nlp-to-auto-translate-i18n-files-in-any-desired-language">Leverage NLP to auto translate i18n files in any desired language</h2>
+
+<p>As a Frontend developer, we often have to translate the i18n files to more than 1 language(sometimes). And there are a lot of properties, generally, used in 1 single file. Won’t it be a good idea if we could just automate this? Though SAP provides a translation hub which can help but that still is a lot of work. Let’s look at briefly what the idea is.
+Also, source can be found <a href="https://github.com/GauravChaudhary1/auto-translation">here</a>.</p>
+
+<h2 id="nlp-python-library--nodejs">NLP Python Library &amp; NodeJS</h2>
+
+<p>I have used a pre-delivered library, since it provides most of the languages and has a good trained model.
+<a href="https://pypi.org/project/google-trans-new/">Google-trans-new</a> - This provides over 30+ language translations and works pretty well.</p>
+
+<h2 id="how-it-works">How it works?</h2>
+
+<p>Python script checks the i18n file and access all the key fields and translates into desired language and generate a new file if it not already exists.
+Take a look at the file <a href="https://github.com/GauravChaudhary1/auto-translation/blob/main/translate.py">translate.py</a></p>
+
+<p>Sample working of the translator.</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="nn">google_trans_new</span> <span class="kn">import</span> <span class="n">google_translator</span>  
+
+<span class="n">translator</span> <span class="o">=</span> <span class="n">google_translator</span><span class="p">()</span>  
+<span class="n">translate_text</span> <span class="o">=</span> <span class="n">translator</span><span class="p">.</span><span class="n">translate</span><span class="p">(</span><span class="s">'Main'</span><span class="p">,</span><span class="n">lang_tgt</span><span class="o">=</span><span class="s">'hi'</span><span class="p">)</span>  
+<span class="k">print</span><span class="p">(</span><span class="n">translate_text</span><span class="p">)</span>
+<span class="o">-&gt;</span> <span class="err">मुख्य</span>
+</code></pre></div></div>
+
+<p>In manifest.json, I have added a key “targetLanguages” which is then collected by translate.py</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="w">
+</span><span class="nl">"targetLanguages"</span><span class="p">:[</span><span class="w">
+			</span><span class="s2">"ru"</span><span class="p">,</span><span class="w">
+			</span><span class="s2">"de"</span><span class="p">,</span><span class="w">
+			</span><span class="s2">"fr"</span><span class="p">,</span><span class="w">
+			</span><span class="s2">"hi"</span><span class="p">,</span><span class="w">
+			</span><span class="s2">"zh"</span><span class="w">
+			</span><span class="p">]</span><span class="w">
+
+</span></code></pre></div></div>
+
+<p>Either you can run the command to execute python file. or you can provide it in NPM command. For example, in package.json:</p>
+
+<div class="language-json highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nl">"scripts"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w">
+</span><span class="nl">"deploy"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ui5 build preload --clean-dest --config ui5-deploy.yaml --include-task=generateManifestBundle generateCachebusterInfo &amp;&amp; rimraf archive.zip"</span><span class="p">,</span><span class="w">
+
+</span><span class="nl">"translate"</span><span class="p">:</span><span class="w"> </span><span class="s2">"python translate.py"</span><span class="w">
+</span></code></pre></div></div>
+
+<p>With earlier UI5 tooling versions, encoding was mandated to ISO-8859-1 which is what SAP uses internally to encode or decode. However, with new UI5 tooling version (&gt;1.74) this is resolved. You can specify, encoding preference. <a href="https://sap.github.io/ui5-tooling/pages/Configuration/">More Details</a></p>
+
+<h2 id="running-command---npm-run-translate">Running command - NPM run translate</h2>
+<p>i18n.properties</p>
+
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="py">title</span><span class="p">=</span><span class="s">Title</span>
+<span class="py">appTitle</span><span class="p">=</span><span class="s">Main</span>
+<span class="py">appDescription</span><span class="p">=</span><span class="s">App Description</span>
+
+<span class="py">step1</span><span class="p">=</span><span class="s">Select Action</span>
+<span class="py">step2</span><span class="p">=</span><span class="s">Select Action</span>
+</code></pre></div></div>
+
+<p>Hindi Translation(i18n_hi.properties)</p>
+
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="py">title</span><span class="p">=</span><span class="s">शीर्षक</span>
+<span class="py">appTitle</span><span class="p">=</span><span class="s">मुख्य</span>
+<span class="py">appDescription</span><span class="p">=</span><span class="s">ऐप विवरण</span>
+
+  
+
+<span class="py">step1</span><span class="p">=</span><span class="s">कार्रवाई चुनें</span>
+<span class="py">step2</span><span class="p">=</span><span class="s">कार्रवाई चुनें</span>
+</code></pre></div></div>
+
+<p>Russian Translation(i18n_ru.properties)</p>
+
+<div class="language-properties highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="py">title</span><span class="p">=</span><span class="s">Заголовок</span>
+<span class="py">appTitle</span><span class="p">=</span><span class="s">Основной</span>
+<span class="py">appDescription</span><span class="p">=</span><span class="s">Описание приложения</span>
+
+<span class="py">step1</span><span class="p">=</span><span class="s">Выберите действие</span>
+<span class="py">step2</span><span class="p">=</span><span class="s">Выберите действие</span>
+</code></pre></div></div>
+
+<p>Now it has become a lot easier to translate, I just need to run only 1 command and best part is code is reusable, and I can use it for not just UI5/Fiori but to any frontend apps, like Angular, React, even Python itself.</p>
+
+<h3 id="ps-i-have-used-vscode-for-this-however-it-is-also-possible-in-business-application-studio">PS: I have used VSCode for this, however, it is also possible in Business Application Studio</h3>
+<p>Checkout this <a href="https://blogs.sap.com/2021/01/21/xtending-business-application-studio-4-of-3/">link</a> to get started on installing python to BAS.</p>
+:ET
